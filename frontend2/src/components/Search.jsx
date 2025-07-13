@@ -1,0 +1,98 @@
+import React, { useState } from 'react'
+import { sampleUsers } from '../db/DB'
+
+function Search() {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredUsers, setFilteredUsers] = useState(sampleUsers)
+
+  const handleSearch = (query) => {
+    setSearchQuery(query)
+    if (query.trim() === '') {
+      setFilteredUsers(sampleUsers)
+    } else {
+      const filtered = sampleUsers.filter(user =>
+        user.username.toLowerCase().includes(query.toLowerCase()) ||
+        user.fullName.toLowerCase().includes(query.toLowerCase())
+      )
+      setFilteredUsers(filtered)
+    }
+  }
+
+  return (
+    <div className="h-full w-full bg-white shadow-xl rounded-r-2xl flex flex-col " style={{minWidth: '350px'}}>
+      <div className="p-8 pb-0">
+        {/* Search Header */}
+        <h1 className="text-2xl font-bold mb-4">Search</h1>
+        <div className="relative mb-6">
+          <input
+            type="text"
+            placeholder="  Search"
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full px-4 py-2 pl-10 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <i className="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
+        </div>
+      </div>
+
+      {/* Search Results */}
+      <div className="flex-1 overflow-y-auto px-8 pb-8">
+        <div className="space-y-4">
+          {filteredUsers.map((user) => (
+            <div key={user.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
+              <div className="flex items-center space-x-3">
+                <img
+                  src={user.avatar}
+                  alt={user.username}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div>
+                  <div className="flex items-center space-x-1">
+                    <span className="font-semibold text-sm">{user.username}</span>
+                    {user.isVerified && (
+                      <i className="fa-solid fa-circle-check text-blue-500 text-xs"></i>
+                    )}
+                  </div>
+                  <span className="text-gray-500 text-sm">{user.fullName}</span>
+                </div>
+              </div>
+              <button className={`px-4 py-1 rounded-lg text-sm font-semibold ${
+                user.isFollowing 
+                  ? 'text-gray-500 hover:text-red-500' 
+                  : 'text-blue-500 hover:text-blue-600'
+              }`}>
+                {user.isFollowing ? 'Following' : 'Follow'}
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Recent Searches */}
+        {searchQuery === '' && (
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold mb-4">Recent</h2>
+            <div className="space-y-3">
+              {sampleUsers.slice(0, 3).map((user) => (
+                <div key={user.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                  <div className="flex items-center space-x-3">
+                    <img
+                      src={user.avatar}
+                      alt={user.username}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <span className="font-semibold text-sm">{user.username}</span>
+                    </div>
+                  </div>
+                  <i className="fa-solid fa-xmark text-gray-400 hover:text-gray-600 cursor-pointer"></i>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default Search 

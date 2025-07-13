@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-InstademoApplication<instademo>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.Qt.instademo.InstademoApplication",
+            "projectName": "instademo",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
