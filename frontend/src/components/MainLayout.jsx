@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import SideBar from './SideBar';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Search from './Search';
 import Notification from './Notification';
-
-const MAIN_ROUTES = [
-  '/', '/explore', '/reels', '/message', '/create', '/profile', '/more'
-];
+import { MAIN_ROUTES } from '../db/DB';
 
 const MainLayout = () => {
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [isNotificationMode, setIsNotificationMode] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const handleSearchClick = () => {
     setIsSearchMode((prev) => {
@@ -34,6 +32,13 @@ const MainLayout = () => {
       setIsNotificationMode(false);
     }
   }, [location.pathname]);
+
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const handleCloseOverlays = () => {
     setIsSearchMode(false);

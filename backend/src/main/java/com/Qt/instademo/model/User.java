@@ -27,6 +27,9 @@ public class User {
     @Column( nullable = false)
     private String userName;
 
+    @Column(nullable = false)
+    private String password;
+
 
     private String profilePictureUrl;
     private String bio;

@@ -9,11 +9,13 @@ import Message from './components/Message';
 import Create from './components/Create';
 import Profile from './components/Profile';
 import More from './components/More';
+import Login from './components/Login';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<Login />} />
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/explore" element={<Explore />} />
