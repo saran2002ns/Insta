@@ -1,26 +1,62 @@
-import React from 'react'
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
-export default function PostInfo({ imageUrls, onClose }) {
+export default function PostInfo({ imageUrls, onClose, post }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
-  const prevImage = () => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : imageUrls.length - 1));
-  const nextImage = () => setCurrentIndex((prev) => (prev + 1) % imageUrls.length);
-
+ 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex justify-center items-center">
       {/* Overlay Box */}
       <div className="bg-white w-[90%] h-[90%] flex rounded-lg overflow-hidden shadow-lg relative">
-        {/* Left: Image Viewer */}
+        {/* Left: Image/Video Viewer */}
         <div className="flex-1 bg-black flex items-center justify-center relative">
-          <img src={imageUrls[currentIndex]} alt="post" className="max-h-full max-w-full" />
-          <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow">
+          {post && post.type === 'video' ? (
+            <div
+              className="relative w-full h-full flex items-center justify-center"
+              onClick={() => {
+                const video = document.getElementById('postinfo-video');
+                if (video) {
+                  if (video.paused) {
+                    video.play();
+                  } else {
+                    video.pause();
+                  }
+                }
+              }}
+            >
+              <video
+                id="postinfo-video"
+                src={post.src}
+                autoPlay
+                playsInline
+                loop
+                className="w-full h-full object-contain bg-black rounded-xl shadow-lg"
+                onPlay={() => setIsPaused(false)}
+                onPause={() => setIsPaused(true)}
+              />
+              {isPaused && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="white" className="opacity-80">
+                    <polygon points="8,5 19,12 8,19" />
+                  </svg>
+                </div>
+              )}
+            </div>
+          ) : (
+            <img
+              src={post ? post.src : imageUrls[currentIndex]}
+              alt="post"
+              className="w-full h-full object-contain bg-black"
+            />
+          )}
+          {/* <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow">
             <ChevronLeft />
           </button>
           <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow">
             <ChevronRight />
-          </button>
+          </button> */}
         </div>
 
         {/* Right: Post Details */}

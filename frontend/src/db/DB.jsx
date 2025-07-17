@@ -326,7 +326,7 @@ export const posts = [
 ];
 
 export const stories = [
-  { id: 1, name: 'vignesh_th...', avatar: sampleUsers[0].avatar, src: 'https://www.w3schools.com/html/mov_bbb.mp4', type: 'video', viewed: false },
+  { id: 1, name: 'vignesh_th...', avatar: sampleUsers[0].avatar, src: 'https://pixeldrain.com/api/file/BF9gAoBf', type: 'video', viewed: false },
   { id: 2, name: 'zoho', avatar: sampleUsers[1].avatar, src: 'https://pixeldrain.com/api/file/fyGNXF6a', type: 'video', viewed: false },
   { id: 3, name: '_mr.naasif_', avatar: sampleUsers[2].avatar, src: 'https://www.w3schools.com/html/mov_bbb.mp4', type: 'video', viewed: false },
   { id: 4, name: '__y._o_g_e', avatar: sampleUsers[3].avatar, src: 'https://www.w3schools.com/html/movie.mp4', type: 'video', viewed: false },

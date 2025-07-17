@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 import MainLayout from './components/MainLayout';
 import Home from './components/Home';
 import Explore from './components/Explore';
@@ -10,13 +10,35 @@ import Create from './components/Create';
 import Profile from './components/Profile';
 import More from './components/More';
 import Login from './components/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+
+function ProfileWithKey() {
+  const { username } = useParams();
+  return <Profile key={username || 'mock'} />;
+}
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route element={<MainLayout />}>
+        <Route
+          path="/user/:username"
+          element={
+            <ProtectedRoute>
+              <MainLayout noSidebarSelection>
+                <ProfileWithKey />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/" element={<Home />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/reels" element={<Reels />} />

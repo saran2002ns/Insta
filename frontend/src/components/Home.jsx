@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { sampleUsers ,posts,stories} from '../db/DB';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import StoryModal from './StoryModal';
 
 
@@ -73,6 +73,18 @@ function Home() {
     scrollRef.current.scrollBy({ left: 261, behavior: 'smooth' });
   };
 
+  const handleUserClick = (username) => {
+    if (window.location.pathname === `/user/${username}`) {
+      navigate('/', { replace: true });
+      setTimeout(() => {
+        navigate(`/user/${username}`, { replace: true });
+        window.dispatchEvent(new Event('forceSidebarReset'));
+      }, 0);
+    } else {
+      navigate(`/user/${username}`);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-white font-sans">
       {/* Center Feed */}
@@ -132,11 +144,13 @@ function Home() {
           {posts.slice(0, visibleCount).map((post) => (
             <div key={post.id} className="bg-white px-10">
               <div className="flex items-center px-2 py-3">
-                <img src={post.user.avatar} alt={post.user.username} className="w-9 h-9 rounded-full mr-3" />
-                <span className="font-semibold text-gray-800 text-sm mr-1">{post.user.username}</span>
-                {post.user.isVerified && (
+                <Link to={`/user/${post.user.username}`} className="flex items-center">
+                  <img src={post.user.avatar} alt={post.user.username} className="w-9 h-9 rounded-full mr-3" />
+                  <span className="font-semibold text-gray-800 text-sm mr-1">{post.user.username}</span>
+                </Link>
+                {/* {post.user.isVerified && (
                   <svg className="w-4 h-4 text-blue-500 inline ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12l-2-2-2 2-2-2-2 2-2-2-2 2-2-2-2 2v2l2 2 2-2 2 2 2-2 2 2 2-2 2 2 2-2v-2z" /></svg>
-                )}
+                )} */}
                 <span className="ml-auto text-xs text-gray-400">• {post.time}</span>
               </div>
               <img src={post.image} alt="post" className="w-full max-h-[500px] rounded-md object-cover" />
@@ -182,7 +196,7 @@ function Home() {
           <div className="flex flex-col gap-4">
             {sampleUsers.slice(1, 6).map((user) => (
               <div key={user.id} className="flex items-center justify-between">
-                <div className="flex items-center">
+                <div className="flex items-center" onClick={() => handleUserClick(user.username)} style={{ cursor: 'pointer' }}>
                   <img src={user.avatar} alt={user.username} className="w-9 h-9 rounded-full mr-3" />
                   <div>
                     <div className="font-semibold text-gray-800 text-sm">{user.username}</div>

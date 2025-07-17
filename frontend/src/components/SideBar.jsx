@@ -2,7 +2,7 @@ import React from 'react'
 import { sidebarItems } from '../db/DB'
 import { Link, useLocation } from 'react-router-dom'
 
-function SideBar({ onSearchClick, isSearchMode, onNotificationClick, isNotificationMode, onCloseOverlays }) {
+function SideBar({ onSearchClick, isSearchMode, onNotificationClick, isNotificationMode, onCloseOverlays, noSidebarSelection }) {
   const location = useLocation();
 
   const handleItemClick = (itemName) => {
@@ -31,9 +31,11 @@ function SideBar({ onSearchClick, isSearchMode, onNotificationClick, isNotificat
         {sidebarItems.map((item, index) => {
           // Only highlight overlay icon if overlay is open, otherwise highlight current route
           let isActive = false;
-          if (isSearchMode && item.name === 'Search') isActive = true;
-          else if (isNotificationMode && item.name === 'Notifications') isActive = true;
-          else if (!isSearchMode && !isNotificationMode && item.path && location.pathname === item.path) isActive = true;
+          if (!noSidebarSelection) {
+            if (isSearchMode && item.name === 'Search') isActive = true;
+            else if (isNotificationMode && item.name === 'Notifications') isActive = true;
+            else if (!isSearchMode && !isNotificationMode && item.path && location.pathname === item.path) isActive = true;
+          }
 
           const content = (
             <div

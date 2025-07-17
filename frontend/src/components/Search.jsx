@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { sampleUsers } from '../db/DB'
+import { useNavigate } from 'react-router-dom';
 
-function Search() {
+function Search(props) {
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredUsers, setFilteredUsers] = useState(sampleUsers)
+  const navigate = useNavigate();
 
   const handleSearch = (query) => {
     setSearchQuery(query)
@@ -15,6 +17,21 @@ function Search() {
         user.fullName.toLowerCase().includes(query.toLowerCase())
       )
       setFilteredUsers(filtered)
+    }
+  }
+
+  const handleUserClick = (username) => {
+    if (window.location.pathname === `/user/${username}`) {
+      // Force remount: navigate away and back
+      navigate('/', { replace: true });
+      setTimeout(() => {
+        navigate(`/user/${username}`, { replace: true });
+        window.dispatchEvent(new Event('forceSidebarReset'));
+        if (props.onCloseOverlays) props.onCloseOverlays();
+      }, 0);
+    } else {
+      navigate(`/user/${username}`);
+      if (props.onCloseOverlays) props.onCloseOverlays();
     }
   }
 
@@ -39,7 +56,7 @@ function Search() {
       <div className="flex-1 overflow-y-auto px-8 pb-8">
         <div className="space-y-4">
           {filteredUsers.map((user) => (
-            <div key={user.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
+            <div key={user.id} style={{ textDecoration: 'none', color: 'inherit' }} onClick={() => handleUserClick(user.username)} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
               <div className="flex items-center space-x-3">
                 <img
                   src={user.avatar}

@@ -1,8 +1,23 @@
 import React from 'react'
 import { notifications } from '../db/DB'
+import { Link, useNavigate } from 'react-router-dom';
 
 
 function Notification() {
+  const navigate = useNavigate();
+
+  const handleUserClick = (username) => {
+    if (window.location.pathname === `/user/${username}`) {
+      navigate('/', { replace: true });
+      setTimeout(() => {
+        navigate(`/user/${username}`, { replace: true });
+        window.dispatchEvent(new Event('forceSidebarReset'));
+      }, 0);
+    } else {
+      navigate(`/user/${username}`);
+    }
+  };
+
   return (
     <div className="h-full w-full bg-white shadow-xl rounded-r-2xl flex flex-col" style={{minWidth: '350px'}}>
       <div className="p-8 pb-0">
@@ -11,14 +26,17 @@ function Notification() {
       <div className="flex-1 overflow-y-auto px-8 pb-8">
         <div className="space-y-4">
           {notifications.map((notif) => (
-            <div key={notif.id} className="flex items-center p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
-              <img
-                src={notif.avatar}
-                alt={notif.user}
-                className="w-12 h-12 rounded-full object-cover mr-3"
-              />
-              <div className="flex-1">
-                <span className="font-semibold text-sm mr-1">{notif.user}</span>
+            <div key={notif.id} className="flex items-center p-3 hover:bg-gray-50 rounded-lg cursor-pointer" onClick={() => handleUserClick(notif.user)}>
+              <div className="flex items-center"  style={{ cursor: 'pointer' }}>
+                <img
+                  src={notif.avatar}
+                  alt={notif.user}
+                  className="w-12 h-12 rounded-full object-cover mr-3"
+                />
+               
+              </div>
+              <div className="flex-1 items-center">
+               <span className="font-semibold text-sm mr-1">{notif.user}</span>
                 <span className="text-sm">{notif.message}</span>
                 <div className="text-xs text-gray-400 mt-1">{notif.time} ago</div>
               </div>
