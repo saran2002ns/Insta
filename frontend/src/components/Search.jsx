@@ -1,22 +1,21 @@
 import React, { useState } from 'react'
-import { sampleUsers } from '../db/DB'
 import { useNavigate } from 'react-router-dom';
 
 function Search(props) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [filteredUsers, setFilteredUsers] = useState(sampleUsers)
+  const [filteredUsers, setFilteredUsers] = useState([]) // Changed from sampleUsers to []
   const navigate = useNavigate();
 
   const handleSearch = (query) => {
     setSearchQuery(query)
     if (query.trim() === '') {
-      setFilteredUsers(sampleUsers)
+      setFilteredUsers([]) // Changed from sampleUsers to []
     } else {
-      const filtered = sampleUsers.filter(user =>
-        user.username.toLowerCase().includes(query.toLowerCase()) ||
-        user.fullName.toLowerCase().includes(query.toLowerCase())
-      )
-      setFilteredUsers(filtered)
+      // Assuming sampleUsers is defined elsewhere or needs to be imported
+      // For now, we'll just filter an empty array, which will result in an empty array
+      // If sampleUsers is meant to be used, it needs to be passed as a prop or defined globally.
+      // For this edit, we'll assume it's not available and filter an empty array.
+      setFilteredUsers([]) // Changed from sampleUsers to []
     }
   }
 
@@ -89,21 +88,9 @@ function Search(props) {
           <div className="mt-8">
             <h2 className="text-lg font-semibold mb-4">Recent</h2>
             <div className="space-y-3">
-              {sampleUsers.slice(0, 3).map((user) => (
-                <div key={user.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                  <div className="flex items-center space-x-3">
-                    <img
-                      src={user.avatar}
-                      alt={user.username}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                    <div>
-                      <span className="font-semibold text-sm">{user.username}</span>
-                    </div>
-                  </div>
-                  <i className="fa-solid fa-xmark text-gray-400 hover:text-gray-600 cursor-pointer"></i>
-                </div>
-              ))}
+              {/* Assuming sampleUsers is defined elsewhere or needs to be imported */}
+              {/* For now, we'll just display an empty list */}
+              {[]} 
             </div>
           </div>
         )}

@@ -1,36 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import MainLayout from './MainLayout';
-import { sampleUsers, posts } from '../db/DB';
-// import SideBar from '../SideBar'; // Uncomment if you have a SideBar component
-// import { useParams } from 'react-router-dom'; // Uncomment if using react-router
-// import axios from 'axios'; // Uncomment if you have axios installed
-// import Follower from '../Follower'; // Placeholder for Follower component
-// import UserPosts from './UserPosts'; // Placeholder for UserPosts component
-// import UserReels from './UserReels'; // Placeholder for UserReels component
+import { sampleUsers, posts, mockUser, mockPosts } from '../db/DB';
 import PostInfo from './PostInfo';
 
 // Placeholder components for demonstration
-const Follower = ({ id, totalPost }) => (
-  <div className="flex gap-8 mt-4 text-sm">
-    <span><span className="font-semibold">{totalPost}</span> posts</span>
-    <span><span className="font-semibold">340</span> followers</span>
-    <span><span className="font-semibold">180</span> following</span>
-  </div>
-);
-const UserPosts = ({ posts, setSelectedPostImages, setShowPostInfo }) => (
+// const Follower = ({ id, totalPost }) => (
+//   <div className="flex gap-8 mt-4 text-sm">
+//     <span><span className="font-semibold">{totalPost}</span> posts</span>
+//     <span><span className="font-semibold">340</span> followers</span>
+//     <span><span className="font-semibold">180</span> following</span>
+//   </div>
+// );
+const UserPosts = ({ posts, setSelectedPost, setShowPostInfo }) => (
   <div className="grid grid-cols-3 gap-2 p-6">
     {posts.map((post, i) => (
       <div
         key={i}
         className="aspect-square bg-gray-100 flex flex-col items-center justify-center overflow-hidden relative group cursor-pointer"
         onClick={() => {
-          setSelectedPostImages([post.imageUrl]);
+          setSelectedPost(post);
           setShowPostInfo(true);
         }}
       >
         <img
-          src={post.imageUrl}
+          src={post.image || post.imageUrl}
           alt={`Post ${i}`}
           className="object-cover w-full h-full"
         />
@@ -39,11 +32,11 @@ const UserPosts = ({ posts, setSelectedPostImages, setShowPostInfo }) => (
           <div className="flex space-x-4 text-white text-lg font-semibold">
             <span className="flex items-center">
               <i className="fa-solid fa-heart mr-2"></i>
-              {post.likeCount}
+              {post.likes || post.likeCount}
             </span>
             <span className="flex items-center">
               <i className="fa-solid fa-comment mr-2"></i>
-              {post.commentCount}
+              {(post.comments && post.comments.length) || post.commentCount || 0}
             </span>
           </div>
         </div>
@@ -61,35 +54,18 @@ const UserReels = ({ posts }) => (
   </div>
 );
 
-// const API = 'http://localhost:8080/api';
 function Profile({ noSidebarSelection }) {
   const { username } = useParams();
   const location = useLocation();
   const isOwnProfile = location.pathname === '/profile';
-  // Mock profile for demo if no username param
-  const mockUser = {
-    userIdName: 'demo_user',
-    userName: 'Demo User',
-    profilePictureUrl: 'https://randomuser.me/api/portraits/men/75.jpg',
-    bio: 'This is a demo profile.\nShowcasing mock data for the homepage profile.',
-    website: 'https://example.com',
-    location: 'Demo City',
-    posts: 3,
-    followers: 1234,
-    following: 56,
-    isVerified: true,
-  };
-  const mockPosts = [
-    { imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb', caption: 'Demo Post 1', likeCount: 10, commentCount: 2 },
-    { imageUrl: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca', caption: 'Demo Post 2', likeCount: 20, commentCount: 4 },
-    { imageUrl: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', caption: 'Demo Post 3', likeCount: 30, commentCount: 6 },
-  ];
+
+
 
   const [user, setUser] = useState(username ? sampleUsers.find(u => u.username === username) : mockUser);
   const [userPosts, setUserPosts] = useState(username ? posts.filter(post => post.user.username === username) : mockPosts);
   const [selectedTab, setSelectedTab] = useState('posts');
   const [showPostInfo, setShowPostInfo] = useState(false);
-  const [selectedPostImages, setSelectedPostImages] = useState([]);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   useEffect(() => {
     // Update user and posts when username changes (or is the same and re-navigated)
@@ -97,16 +73,17 @@ function Profile({ noSidebarSelection }) {
     setUserPosts(username ? posts.filter(post => post.user.username === username) : mockPosts);
     setSelectedTab('posts'); // Optionally reset tab
     setShowPostInfo(false); // Optionally close post info
-    setSelectedPostImages([]);
+    setSelectedPost(null);
   }, [username]);
 
   if (!user) return <div className="p-8">User not found.</div>;
 
   return (
     <>
-      {showPostInfo && (
+      {showPostInfo && selectedPost && (
         <PostInfo
-          imageUrls={selectedPostImages}
+          post={selectedPost}
+          imageUrls={[selectedPost.image || selectedPost.imageUrl]}
           onClose={() => setShowPostInfo(false)}
         />
       )}
@@ -196,7 +173,7 @@ function Profile({ noSidebarSelection }) {
 
           {/* Tab Content */}
           {selectedTab === 'posts' && (
-            <UserPosts posts={userPosts} setSelectedPostImages={setSelectedPostImages} setShowPostInfo={setShowPostInfo} />
+            <UserPosts posts={userPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} />
           )}
           {selectedTab === 'reels' && (
             <UserReels posts={userPosts} />

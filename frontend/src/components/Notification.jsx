@@ -1,6 +1,6 @@
 import React from 'react'
 import { notifications } from '../db/DB'
-import { Link, useNavigate } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 
 
 function Notification() {

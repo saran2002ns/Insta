@@ -152,6 +152,8 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600',
     caption: 'Enjoying the beautiful sunset! 🌅',
     likes: 120,
+    liked: false,
+    saved: false,
     comments: [
       { user: sampleUsers[1], text: 'Amazing view!' },
       { user: sampleUsers[2], text: 'Wow, so cool!' }
@@ -164,6 +166,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600',
     caption: 'Hiking adventures 🥾',
     likes: 89,
+    liked: false,
     comments: [
       { user: sampleUsers[0], text: 'Looks fun!' }
     ],
@@ -175,6 +178,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600',
     caption: 'Coffee break ☕',
     likes: 45,
+    liked: false,
     comments: [],
     time: '1 day ago'
   },
@@ -185,6 +189,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600',
     caption: 'City lights at night ✨',
     likes: 67,
+    liked: false,
     comments: [
       { user: sampleUsers[2], text: 'So vibrant!' }
     ],
@@ -196,6 +201,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600',
     caption: 'Nature walk 🌳',
     likes: 102,
+    liked: false,
     comments: [
       { user: sampleUsers[1], text: 'Love this place!' },
       { user: sampleUsers[3], text: 'So peaceful.' }
@@ -208,6 +214,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1519985176271-adb1088fa94c?w=600',
     caption: 'Throwback to last summer ☀️',
     likes: 150,
+    liked: false,
     comments: [
       { user: sampleUsers[4] || sampleUsers[1], text: 'Miss those days!' }
     ],
@@ -219,6 +226,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=601',
     caption: 'Sunrise over the hills 🌄',
     likes: 77,
+    liked: false,
     comments: [
       { user: sampleUsers[2], text: 'Beautiful!' }
     ],
@@ -230,6 +238,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=601',
     caption: 'Urban jungle 🏙️',
     likes: 54,
+    liked: false,
     comments: [
       { user: sampleUsers[0], text: 'Nice shot!' }
     ],
@@ -241,6 +250,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=601',
     caption: 'Morning coffee vibes ☕',
     likes: 99,
+    liked: false,
     comments: [
       { user: sampleUsers[1], text: 'Need coffee now!' }
     ],
@@ -252,6 +262,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=601',
     caption: 'City at dusk 🌆',
     likes: 120,
+    liked: false,
     comments: [
       { user: sampleUsers[2], text: 'Love the colors!' }
     ],
@@ -263,6 +274,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=602',
     caption: 'Forest adventure 🌲',
     likes: 88,
+    liked: false,
     comments: [
       { user: sampleUsers[3], text: 'So green!' }
     ],
@@ -274,6 +286,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1519985176271-adb1088fa94c?w=601',
     caption: 'Summer fun at the beach 🏖️',
     likes: 134,
+    liked: false,
     comments: [
       { user: sampleUsers[4] || sampleUsers[2], text: 'Wish I was there!' }
     ],
@@ -285,6 +298,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=602',
     caption: 'Evening stroll 🚶‍♂️',
     likes: 56,
+    liked: false,
     comments: [
       { user: sampleUsers[0], text: 'Nice walk!' }
     ],
@@ -296,6 +310,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=602',
     caption: 'City lights at night 🌃',
     likes: 78,
+    liked: false,
     comments: [
       { user: sampleUsers[1], text: 'So bright!' }
     ],
@@ -307,6 +322,7 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=602',
     caption: 'Quiet moments 📚',
     likes: 61,
+    liked: false,
     comments: [
       { user: sampleUsers[2], text: 'Love this.' }
     ],
@@ -318,11 +334,168 @@ export const posts = [
     image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=602',
     caption: 'Downtown adventures 🚗',
     likes: 110,
+    liked: false,
     comments: [
       { user: sampleUsers[3], text: 'Let’s go!' }
     ],
     time: '11 days ago'
   }
+];
+
+export const exploreItems = [
+  {
+    id: 1,
+    src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
+    type: "image",
+  },
+  {
+    id: 2,
+    src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600",
+    type: "image",
+  },
+  {
+    id: 3,
+    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600",
+    type: "image",
+  },
+  {
+    id: 4,
+    src: "https://www.w3schools.com/html/mov_bbb.mp4",
+    type: "video",
+  },
+  {
+    id: 5,
+    src: "https://www.w3schools.com/html/movie.mp4",
+    type: "video",
+  },
+  // Add more posts if you want to see multiple sets
+  {
+    id: 6,
+    src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
+    type: "image",
+  },
+  {
+    id: 7,
+    src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600",
+    type: "image",
+  },
+  {
+    id: 8,
+    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600",
+    type: "image",
+  },
+  {
+    id: 9,
+    src: "https://www.w3schools.com/html/mov_bbb.mp4",
+    type: "video",
+  },
+  {
+    id: 10,
+    src: "https://www.w3schools.com/html/movie.mp4",
+    type: "video",
+  },
+  {
+    id: 11,
+    src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
+    type: "image",
+  },
+  {
+    id: 12,
+    src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600",
+    type: "image",
+  },
+  {
+    id: 13,
+    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600",
+    type: "image",
+  },
+  {
+    id: 14,
+    src: "https://www.w3schools.com/html/mov_bbb.mp4",
+    type: "video",
+  },
+  {
+    id: 15,
+    src: "https://www.w3schools.com/html/movie.mp4",
+    type: "video",
+  },
+  // Add more posts if you want to see multiple sets
+  {
+    id: 16,
+    src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
+    type: "image",
+  },
+  {
+    id: 17,
+    src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600",
+    type: "image",
+  },
+  {
+    id: 18,
+    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600",
+    type: "image",
+  },
+  {
+    id: 19,
+    src: "https://www.w3schools.com/html/mov_bbb.mp4",
+    type: "video",
+  },
+  {
+    id: 20,
+    src: "https://www.w3schools.com/html/movie.mp4",
+    type: "video",
+  },
+  {
+    id: 21,
+    src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
+    type: "image",
+  },
+  {
+    id: 22,
+    src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600",
+    type: "image",
+  },
+  {
+    id: 23,
+    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600",
+    type: "image",
+  },
+  {
+    id: 24,
+    src: "https://www.w3schools.com/html/mov_bbb.mp4",
+    type: "video",
+  },
+  {
+    id: 25,
+    src: "https://www.w3schools.com/html/movie.mp4",
+    type: "video",
+  },
+  // Add more posts if you want to see multiple sets
+  {
+    id: 26,
+    src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
+    type: "image",
+  },
+  {
+    id: 27,
+    src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600",
+    type: "image",
+  },
+  {
+    id: 28,
+    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600",
+    type: "image",
+  },
+  {
+    id: 29,
+    src: "https://www.w3schools.com/html/mov_bbb.mp4",
+    type: "video",
+  },
+  {
+    id: 30,
+    src: "https://www.w3schools.com/html/movie.mp4",
+    type: "video",
+  },
 ];
 
 export const stories = [
@@ -338,4 +511,71 @@ export const stories = [
   { id: 10, name: '__y._o_g_e', avatar: sampleUsers[3].avatar, src: 'https://www.w3schools.com/html/movie.mp4', type: 'video', viewed: false },
   { id: 11, name: 'pri_sreeni_', avatar: sampleUsers[4]?.avatar || sampleUsers[0].avatar, src: 'https://www.w3schools.com/html/mov_bbb.mp4', type: 'video', viewed: false },
   { id: 12, name: 'babisha_s...', avatar: sampleUsers[1].avatar, src: 'https://www.w3schools.com/html/movie.mp4', type: 'video', viewed: false }
+];
+
+export const mockUser = {
+  userIdName: 'demo_user',
+  username: 'demo_user',
+  userName: 'Demo User',
+  avatar: 'https://randomuser.me/api/portraits/men/75.jpg',
+  profilePictureUrl: 'https://randomuser.me/api/portraits/men/75.jpg',
+  bio: 'This is a demo profile.\nShowcasing mock data for the homepage profile.',
+  website: 'https://example.com',
+  location: 'Demo City',
+  posts: 3,
+  followers: 1234,
+  following: 56,
+  isVerified: true,
+};
+export const mockPosts = [
+  {
+    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+    caption: 'Demo Post 1',
+    likes: 10,
+    liked: false,
+    saved: false,
+    comments: [],
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca',
+    caption: 'Demo Post 2',
+    likes: 20,
+    liked: false,
+    saved: false,
+    comments: [],
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308',
+    caption: 'Demo Post 3',
+    likes: 30,
+    liked: false,
+    saved: false,
+    comments: [],
+  },
+];
+
+export const reelCaptions = [
+  'This is how Meghalaya will look like in September',
+  'Exploring the hills of Munnar 🌄',
+  'City lights at night ✨🏙️',
+  'Delicious food time! 🍕🍔',
+  'Workout grind 💪🏽',
+  'Travel diaries ✈️🌍',
+  'Chilling with friends 😎',
+  'Pet love 🐶🐱',
+  'Music vibes 🎶',
+  'Coding all night 💻',
+];
+
+export const reelTags = [
+  'Sai Abh', 'Munnar Days', 'Night Owl', 'Foodie', 'Fitness', 'Explorer', 'Friends', 'Pets', 'Music', 'Coder'
+];
+
+export const reelLocations = [
+  'Meghalaya, India', 'Kerala, India', 'Mumbai, India', 'Delhi, India', 'Goa, India', 'Chennai, India', 'Pune, India', 'Bangalore, India', 'Hyderabad, India', 'Kolkata, India'
+];
+
+export const reelVideos = [
+  'https://www.w3schools.com/html/mov_bbb.mp4',
+  'https://www.w3schools.com/html/movie.mp4',
 ];

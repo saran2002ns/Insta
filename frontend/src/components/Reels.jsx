@@ -1,57 +1,27 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import { sampleUsers, reelCaptions, reelTags, reelLocations, reelVideos } from '../db/DB';
 import {
-  FaHeart,
-  FaRegComment,
-  FaPaperPlane,
-  FaBookmark,
   FaVolumeMute,
   FaPlay,
 } from "react-icons/fa";
 import { MdLocationPin } from "react-icons/md";
 import { useSwipeable } from 'react-swipeable';
+import PostInfo from './PostInfo';
 
 // Helper to generate fake reels
 const generateReels = (startIdx, count) => {
-  const users = [
-    { name: 'mike_wilson', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-    { name: 'wander.girl', avatar: 'https://randomuser.me/api/portraits/women/45.jpg' },
-    { name: 'alex_lee', avatar: 'https://randomuser.me/api/portraits/men/65.jpg' },
-    { name: 'emma_watson', avatar: 'https://randomuser.me/api/portraits/women/68.jpg' },
-    { name: 'mike_tyson', avatar: 'https://randomuser.me/api/portraits/men/12.jpg' },
-  ];
-  const captions = [
-    'This is how Meghalaya will look like in September',
-    'Exploring the hills of Munnar 🌄',
-    'City lights at night ✨🏙️',
-    'Delicious food time! 🍕🍔',
-    'Workout grind 💪🏽',
-    'Travel diaries ✈️🌍',
-    'Chilling with friends 😎',
-    'Pet love 🐶🐱',
-    'Music vibes 🎶',
-    'Coding all night 💻',
-  ];
-  const tags = [
-    'Sai Abh', 'Munnar Days', 'Night Owl', 'Foodie', 'Fitness', 'Explorer', 'Friends', 'Pets', 'Music', 'Coder'
-  ];
-  const locations = [
-    'Meghalaya, India', 'Kerala, India', 'Mumbai, India', 'Delhi, India', 'Goa, India', 'Chennai, India', 'Pune, India', 'Bangalore, India', 'Hyderabad, India', 'Kolkata, India'
-  ];
-  const videos = [
-    'https://www.w3schools.com/html/mov_bbb.mp4',
-    'https://www.w3schools.com/html/movie.mp4',
-  ];
+  const users = sampleUsers.map(u => ({ name: u.username, avatar: u.avatar }));
   return Array.from({ length: count }, (_, i) => {
     const idx = (startIdx + i) % users.length;
     return {
       id: startIdx + i + 1,
-      url: videos[(startIdx + i) % videos.length],
-      captionTop: captions[(startIdx + i) % captions.length],
+      url: reelVideos[(startIdx + i) % reelVideos.length],
+      captionTop: reelCaptions[(startIdx + i) % reelCaptions.length],
       avatar: users[idx].avatar,
       user: users[idx].name,
-      tag: tags[(startIdx + i) % tags.length],
-      location: locations[(startIdx + i) % locations.length],
+      tag: reelTags[(startIdx + i) % reelTags.length],
+      location: reelLocations[(startIdx + i) % reelLocations.length],
       likes: Math.floor(Math.random() * 300000) + 1000,
       comments: Math.floor(Math.random() * 300) + 10,
     };
@@ -72,6 +42,10 @@ export default function Reels() {
   const touchStartY = useRef(null);
   const scrollTimeout = useRef(null);
   const navigate = useNavigate();
+  const [likedReels, setLikedReels] = useState({});
+  const [savedReels, setSavedReels] = useState({});
+  const [reelsState, setReelsState] = useState(reels);
+  const [selectedReel, setSelectedReel] = useState(null);
 
   // Infinite scroll: load more reels when at the end
   useEffect(() => {
@@ -177,6 +151,33 @@ export default function Reels() {
     }
   }, [currentIndex]);
 
+  // Like button handler
+  const handleLike = (reelId) => {
+    setLikedReels((prev) => ({
+      ...prev,
+      [reelId]: !prev[reelId],
+    }));
+    setReelsState((prevReels) =>
+      prevReels.map((reel) =>
+        reel.id === reelId
+          ? { ...reel, liked: !reel.liked, likes: !reel.liked ? reel.likes + 1 : reel.likes - 1 }
+          : reel
+      )
+    );
+  };
+  // Save button handler
+  const handleSave = (reelId) => {
+    setSavedReels((prev) => ({
+      ...prev,
+      [reelId]: !prev[reelId],
+    }));
+    setReelsState((prevReels) =>
+      prevReels.map((reel) =>
+        reel.id === reelId ? { ...reel, saved: !reel.saved } : reel
+      )
+    );
+  };
+
   return (
     <div
       ref={containerRef}
@@ -278,24 +279,59 @@ export default function Reels() {
             {/* Action icons column outside video, close to video */}
             <div className="flex flex-col items-center gap-6 ml-6 text-gray-700 h-full justify-center">
               <div className="flex flex-col items-center">
-              <button className="hover:scale-110 transition-transform" aria-label="Like"><i className="fa-regular fa-heart text-2xl"></i></button>
-                <span className="text-xs mt-1">{Math.floor(reels[currentIndex]?.likes / 1000)}K</span>
+                <button
+                  className="hover:scale-110 transition-transform"
+                  aria-label="Like"
+                  onClick={() => handleLike(reelsState[currentIndex].id)}
+                >
+                  {reelsState[currentIndex].liked ? (
+                    <i className="fa-solid fa-heart text-2xl text-red-500"></i>
+                  ) : (
+                    <i className="fa-regular fa-heart text-2xl"></i>
+                  )}
+                </button>
+                <span className="text-xs mt-1">{Math.floor(reelsState[currentIndex]?.likes / 1000)}K</span>
               </div>
               <div className="flex flex-col items-center">
-                <button className="hover:scale-110 transition-transform" aria-label="Comment"><i className="fa-regular fa-comment text-2xl"></i></button> 
-                <span className="text-xs mt-1">{reels[currentIndex]?.comments}</span>
+                <button
+                  className="hover:scale-110 transition-transform"
+                  aria-label="Comment"
+                  onClick={() => setSelectedReel(reelsState[currentIndex])}
+                >
+                  <i className="fa-regular fa-comment text-2xl"></i>
+                </button>
+                <span className="text-xs mt-1">{reelsState[currentIndex]?.comments}</span>
               </div>
               <div className="flex flex-col items-center">
-                <button className="hover:scale-110 transition-transform" aria-label="Share"><i className="fa-regular fa-paper-plane text-2xl"></i></button>
+                <button
+                  className="hover:scale-110 transition-transform"
+                  aria-label="Share"
+                  onClick={() => setSelectedReel(reelsState[currentIndex])}
+                >
+                  <i className="fa-regular fa-paper-plane text-2xl"></i>
+                </button>
               </div>
               <div className="flex flex-col items-center">
-                <button className="hover:scale-110 transition-transform " aria-label="Save"><i className="fa-regular fa-bookmark text-2xl"></i></button>
+                <button
+                  className="hover:scale-110 transition-transform"
+                  aria-label="Save"
+                  onClick={() => handleSave(reelsState[currentIndex].id)}
+                >
+                  {reelsState[currentIndex].saved ? (
+                    <i className="fa-solid fa-bookmark text-2xl text-black"></i>
+                  ) : (
+                    <i className="fa-regular fa-bookmark text-2xl"></i>
+                  )}
+                </button>
               </div>
-             
+
             </div>
           </div>
         </div>
       ))}
+      {selectedReel && (
+        <PostInfo post={selectedReel} onClose={() => setSelectedReel(null)} />
+      )}
     </div>
   );
 }

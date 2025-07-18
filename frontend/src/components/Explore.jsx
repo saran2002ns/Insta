@@ -1,162 +1,8 @@
 import React, { useState } from 'react';
 import { FaPlayCircle } from "react-icons/fa";
 import PostInfo from './PostInfo';
+import { exploreItems } from '../db/DB';
 
-const exploreItems = [
-  {
-    id: 1,
-    src: "https://pixeldrain.com/api/file/BF9gAoBf",
-    type: "video",
-  },
-  {
-    id: 2,
-    src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600",
-    type: "image",
-  },
-  {
-    id: 3,
-    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600",
-    type: "image",
-  },
-  {
-    id: 4,
-    src: "https://www.w3schools.com/html/mov_bbb.mp4",
-    type: "video",
-  },
-  {
-    id: 5,
-    src: "https://www.w3schools.com/html/movie.mp4",
-    type: "video",
-  },
-  // Add more posts if you want to see multiple sets
-  {
-    id: 6,
-    src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
-    type: "image",
-  },
-  {
-    id: 7,
-    src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600",
-    type: "image",
-  },
-  {
-    id: 8,
-    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600",
-    type: "image",
-  },
-  {
-    id: 9,
-    src: "https://www.w3schools.com/html/mov_bbb.mp4",
-    type: "video",
-  },
-  {
-    id: 10,
-    src: "https://www.w3schools.com/html/movie.mp4",
-    type: "video",
-  },
-  {
-    id: 11,
-    src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
-    type: "image",
-  },
-  {
-    id: 12,
-    src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600",
-    type: "image",
-  },
-  {
-    id: 13,
-    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600",
-    type: "image",
-  },
-  {
-    id: 14,
-    src: "https://www.w3schools.com/html/mov_bbb.mp4",
-    type: "video",
-  },
-  {
-    id: 15,
-    src: "https://www.w3schools.com/html/movie.mp4",
-    type: "video",
-  },
-  // Add more posts if you want to see multiple sets
-  {
-    id: 16,
-    src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
-    type: "image",
-  },
-  {
-    id: 17,
-    src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600",
-    type: "image",
-  },
-  {
-    id: 18,
-    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600",
-    type: "image",
-  },
-  {
-    id: 19,
-    src: "https://www.w3schools.com/html/mov_bbb.mp4",
-    type: "video",
-  },
-  {
-    id: 20,
-    src: "https://www.w3schools.com/html/movie.mp4",
-    type: "video",
-  },
-  {
-    id: 21,
-    src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
-    type: "image",
-  },
-  {
-    id: 22,
-    src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600",
-    type: "image",
-  },
-  {
-    id: 23,
-    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600",
-    type: "image",
-  },
-  {
-    id: 24,
-    src: "https://www.w3schools.com/html/mov_bbb.mp4",
-    type: "video",
-  },
-  {
-    id: 25,
-    src: "https://www.w3schools.com/html/movie.mp4",
-    type: "video",
-  },
-  // Add more posts if you want to see multiple sets
-  {
-    id: 26,
-    src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600",
-    type: "image",
-  },
-  {
-    id: 27,
-    src: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=600",
-    type: "image",
-  },
-  {
-    id: 28,
-    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600",
-    type: "image",
-  },
-  {
-    id: 29,
-    src: "https://www.w3schools.com/html/mov_bbb.mp4",
-    type: "video",
-  },
-  {
-    id: 30,
-    src: "https://www.w3schools.com/html/movie.mp4",
-    type: "video",
-  },
-];
 
 function chunkArray(array, size) {
   const result = [];
@@ -183,9 +29,10 @@ export default function Explore() {
         <>
           <video
             src={item.src}
-            controls
+           
             className="w-full h-full object-cover"
-            poster="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600"
+            playsInline
+            // poster="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600"
           />
           <FaPlayCircle className="absolute top-2 right-2 text-white text-2xl drop-shadow" />
         </>

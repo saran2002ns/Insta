@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { sampleUsers ,posts,stories} from '../db/DB';
+import { sampleUsers ,posts as postsData,stories} from '../db/DB';
 import { useNavigate, Link } from 'react-router-dom';
 import StoryModal from './StoryModal';
+import PostInfo from './PostInfo';
 
 
 function Home() {
@@ -17,6 +18,10 @@ function Home() {
   const [localStories, setLocalStories] = useState(stories.map(s => ({ ...s })));
   // State to hold the sorted stories for the modal
   const [sortedStoriesForModal, setSortedStoriesForModal] = useState([]);
+  const [posts, setPosts] = useState(postsData);
+  const [likedPosts, setLikedPosts] = useState({});
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [savedPosts, setSavedPosts] = useState({});
 
   // Callback to mark a story as viewed from StoryModal
   const handleStoryViewed = (index) => {
@@ -83,6 +88,37 @@ function Home() {
     } else {
       navigate(`/user/${username}`);
     }
+  };
+
+  // Like button handler
+  const handleLike = (postId) => {
+    setLikedPosts((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => {
+        if (post.id === postId) {
+          const liked = !post.liked;
+          const likes = liked ? post.likes + 1 : post.likes - 1;
+          return { ...post, liked, likes };
+        }
+        return post;
+      })
+    );
+  };
+
+  // Save button handler
+  const handleSave = (postId) => {
+    setSavedPosts((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId ? { ...post, saved: !post.saved } : post
+      )
+    );
   };
 
   return (
@@ -158,11 +194,43 @@ function Home() {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-4">
            
-                    <button className="hover:scale-110 transition-transform" aria-label="Like"><i className="fa-regular fa-heart text-2xl"></i></button>
-                    <button className="hover:scale-110 transition-transform" aria-label="Comment"><i className="fa-regular fa-comment text-2xl"></i></button>
-                    <button className="hover:scale-110 transition-transform" aria-label="Share"><i className="fa-regular fa-paper-plane text-2xl"></i></button>
+                    <button
+                      className="hover:scale-110 transition-transform"
+                      aria-label="Like"
+                      onClick={() => handleLike(post.id)}
+                    >
+                      {post.liked ? (
+                        <i className="fa-solid fa-heart text-2xl text-red-500"></i>
+                      ) : (
+                        <i className="fa-regular fa-heart text-2xl"></i>
+                      )}
+                    </button>
+                    <button
+                      className="hover:scale-110 transition-transform"
+                      aria-label="Comment"
+                      onClick={() => setSelectedPost(post)}
+                    >
+                      <i className="fa-regular fa-comment text-2xl"></i>
+                    </button>
+                    <button
+                      className="hover:scale-110 transition-transform"
+                      aria-label="Share"
+                      onClick={() => setSelectedPost(post)}
+                    >
+                      <i className="fa-regular fa-paper-plane text-2xl"></i>
+                    </button>
                   </div>
-                  <button className="hover:scale-110 transition-transform" aria-label="Save"><i className="fa-regular fa-bookmark text-2xl"></i></button>
+                  <button
+                    className="hover:scale-110 transition-transform"
+                    aria-label="Save"
+                    onClick={() => handleSave(post.id)}
+                  >
+                    {post.saved ? (
+                      <i className="fa-solid fa-bookmark text-2xl text-black"></i>
+                    ) : (
+                      <i className="fa-regular fa-bookmark text-2xl"></i>
+                    )}
+                  </button>
                 </div>
                 <div className="font-semibold text-gray-800 text-sm mb-1">{post.likes} likes</div>
                 <div className="mb-1">
@@ -216,6 +284,9 @@ function Home() {
           onClose={() => setStoryModalOpen(false)}
           onStoryViewed={handleStoryViewed}
         />
+      )}
+      {selectedPost && (
+        <PostInfo post={selectedPost} onClose={() => setSelectedPost(null)} />
       )}
     </div>
   );

@@ -104,18 +104,20 @@ const Login = () => {
             Quick Login: Ra One
           </button>
         </div>
-        {/* <div className="mt-6 text-gray-500 text-sm text-center">
+        {/* Sample users for quick login */}
+        <div className="mt-6 text-gray-500 text-sm text-center">
           <span>Test users:</span>
           <ul className="mt-2 space-y-1">
-            {loginUsers.map((user) => (
-              <li key={user.userIdName} className="text-xs text-gray-700">
-                <span className="font-semibold">{user.userIdName}</span> / <span>{user.password}</span>
-              </li>
-            ))}
+            <li className="text-xs text-gray-700">
+              <span className="font-semibold">chitti_robo</span> / <span>chitti123</span>
+            </li>
+            <li className="text-xs text-gray-700">
+              <span className="font-semibold">ra_one</span> / <span>raone123</span>
+            </li>
           </ul>
-        </div> */}
+        </div>
+        <div className="mt-8 text-gray-400 text-xs">&copy; {new Date().getFullYear()} Instagram Demo</div>
       </div>
-      <div className="mt-8 text-gray-400 text-xs">&copy; {new Date().getFullYear()} Instagram Demo</div>
     </div>
   );
 };

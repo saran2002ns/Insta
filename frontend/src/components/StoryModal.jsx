@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 
-
 export default function StoryModal({ stories, initialIndex = 0, onClose, onStoryViewed }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [progress, setProgress] = useState(0);
