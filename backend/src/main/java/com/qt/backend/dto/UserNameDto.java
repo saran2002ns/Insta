@@ -10,4 +10,5 @@ import lombok.AllArgsConstructor;
 public class UserNameDto {
     private String userId;
     private String profilePicture;
+    private String username;
 }

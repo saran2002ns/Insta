@@ -42,6 +42,17 @@ public class PostController {
         }
     }
 
+    @GetMapping("/{userId}/{postId}")
+    public ResponseEntity<?> getPostByIdAndUserId(@PathVariable String userId, @PathVariable Long postId) {
+        try {
+            PostDto post = postService.getPostById(postId, userId);
+            return ResponseEntity.ok(post);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+
     @GetMapping("/feed/{userId}")
     public ResponseEntity<?> getFeedPostsForUser(
             @PathVariable String userId,

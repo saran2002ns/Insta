@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LikeRepository extends JpaRepository<Like, Long> {
 
-    @Query("SELECT new com.qt.backend.dto.LikeDto(l.likeId, l.user.userId, l.user.profilePicture, l.createdAt) " +
+    @Query("SELECT new com.qt.backend.dto.LikeDto(l.likeId, l.user.userId, l.user.profilePicture, l.user.username, l.createdAt) " +
            "FROM Like l WHERE l.post.postId = :postId")
     List<LikeDto> findByPostId(@Param("postId") Long postId);
 

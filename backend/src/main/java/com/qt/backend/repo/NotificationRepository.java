@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    @Query("SELECT new com.qt.backend.dto.NotificationDto(n.id, n.byUser.profilePicture , n.byUser.userId, n.type, n.createdAt) "
+    @Query("SELECT new com.qt.backend.dto.NotificationDto(n.id, n.byUser.profilePicture , n.byUser.userId, n.byUser.username, n.type, n.createdAt) "
     + "FROM Notification n "
     + "WHERE n.user.userId = :userId")
     List<NotificationDto> findByUser(String userId);

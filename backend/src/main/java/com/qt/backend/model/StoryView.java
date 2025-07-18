@@ -37,6 +37,6 @@ public class StoryView {
     @JsonIgnore
     private User user;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "viewed_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }

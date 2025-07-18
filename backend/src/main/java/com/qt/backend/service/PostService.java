@@ -24,16 +24,16 @@ public class PostService {
     private final SaveRepository saveRepository;
     private final FollowsRepository followsRepository;
 
-    public PostDto getPostByIdAndUserId(Long postId, String userId) {
+//     public PostDto getPostByIdAndUserId(Long postId, String userId) {
         
-            PostDto postDto = postRepository.findPostDtoById(postId);
-            postDto.setLikes(likeRepository.findCountOfLikeByPostId(postId));
-            postDto.setComments(commentRepository.findCountOfCommentByPostId(postId));
-            postDto.setIsLiked(likeRepository.findAnyLikeByPostIdAndUserId(postId, userId));
-            postDto.setIsSaved(saveRepository.findAnySaveByPostIdAndUserId(postId, userId));
-            return postDto;
+//             PostDto postDto = postRepository.findPostDtoById(postId);
+//             postDto.setLikes(likeRepository.findCountOfLikeByPostId(postId));
+//             postDto.setComments(commentRepository.findCountOfCommentByPostId(postId));
+//             postDto.setIsLiked(likeRepository.findAnyLikeByPostIdAndUserId(postId, userId));
+//             postDto.setIsSaved(saveRepository.findAnySaveByPostIdAndUserId(postId, userId));
+//             return postDto;
        
-    }
+//     }
 
     public List<PostDto> getPostsByUserId(String userId) {
         
@@ -43,6 +43,7 @@ public class PostService {
                 post.setComments(commentRepository.findCountOfCommentByPostId(post.getPostId()));
                 post.setIsLiked(likeRepository.findAnyLikeByPostIdAndUserId(post.getPostId(), userId));
                 post.setIsSaved(saveRepository.findAnySaveByPostIdAndUserId(post.getPostId(), userId));
+                post.setIsFollowed(followsRepository.findAnyFollowByUserIdAndFollowingId(userId, post.getUserId()));
             }
             return posts;
        
@@ -57,6 +58,7 @@ public class PostService {
                 feed.setLikes(likeRepository.findCountOfLikeByPostId(feed.getPostId()));
                 feed.setComments(commentRepository.findCountOfCommentByPostId(feed.getPostId()));
                 feed.setIsSaved(saveRepository.findAnySaveByPostIdAndUserId(feed.getPostId(), userId));
+                feed.setIsFollowed(followsRepository.findAnyFollowByUserIdAndFollowingId(userId, feed.getUserId()));
             }
             return feeds;
         
@@ -72,8 +74,21 @@ public class PostService {
                 reel.setLikes(likeRepository.findCountOfLikeByPostId(reel.getPostId()));
                 reel.setComments(commentRepository.findCountOfCommentByPostId(reel.getPostId()));
                 reel.setIsSaved(saveRepository.findAnySaveByPostIdAndUserId(reel.getPostId(), userId));
+                reel.setIsFollowed(followsRepository.findAnyFollowByUserIdAndFollowingId(userId, reel.getUserId()));
             }
             return reels;
         
+    }
+
+   
+
+    public PostDto getPostById(Long postId, String userId) {
+        PostDto post = postRepository.findPostDtoById(postId);
+        post.setLikes(likeRepository.findCountOfLikeByPostId(postId));
+        post.setComments(commentRepository.findCountOfCommentByPostId(postId));
+        post.setIsLiked(likeRepository.findAnyLikeByPostIdAndUserId(postId, userId));
+        post.setIsSaved(saveRepository.findAnySaveByPostIdAndUserId(postId, userId));
+        post.setIsFollowed(followsRepository.findAnyFollowByUserIdAndFollowingId(userId, post.getUserId()));
+        return post;
     }
 }

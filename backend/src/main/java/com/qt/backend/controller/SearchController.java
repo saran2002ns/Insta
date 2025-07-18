@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.qt.backend.dto.UserDto;
 import com.qt.backend.dto.UserNameDto;
 import com.qt.backend.service.SearchService;
 
@@ -21,9 +23,9 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping("/{query}")
-    public ResponseEntity<?> searchPosts(@PathVariable String query) {
+    public ResponseEntity<?> searchPosts(@PathVariable String query, @RequestParam String userId) {
         try {
-            List<UserNameDto> results = searchService.searchPosts(query);
+            List<UserDto> results = searchService.searchPosts(query, userId);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());

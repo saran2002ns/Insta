@@ -12,6 +12,8 @@ import com.qt.backend.service.FollowsService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/follows")
@@ -39,4 +41,15 @@ public class FollowsController {
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }
+
+    @GetMapping
+    public ResponseEntity<?> isFollowing(@RequestParam String user1, @RequestParam String user2) {
+        try {
+            boolean isFollowing = followsService.isFollowing(user1, user2);
+            return ResponseEntity.ok(isFollowing);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+    
 }

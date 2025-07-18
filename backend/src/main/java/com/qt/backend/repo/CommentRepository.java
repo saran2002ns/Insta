@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    @Query("SELECT new com.qt.backend.dto.CommentDto(c.commentId, c.text, c.createdAt, c.user.userId, c.user.profilePicture) " +
+    @Query("SELECT new com.qt.backend.dto.CommentDto(c.commentId, c.text, c.createdAt, c.user.userId, c.user.profilePicture, c.user.username) " +
            "FROM Comment c WHERE c.post.postId = :postId")
     List<CommentDto> findByPostId(@Param("postId") Long postId);
 

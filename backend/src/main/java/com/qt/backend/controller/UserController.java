@@ -7,11 +7,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.qt.backend.dto.UserDto;
+import com.qt.backend.dto.UserNameDto;
 import com.qt.backend.dto.UserPasswordCheckDto;
 import com.qt.backend.model.User;
 import com.qt.backend.service.UserService;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 
 
@@ -31,6 +36,17 @@ public class UserController {
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }
+    
+    @GetMapping("/{userId}/suggestions")
+    public ResponseEntity<?> getUserSuggestions(@PathVariable String userId) {
+        try {
+            List<UserDto> suggestions = userService.getUserSuggestions(userId);
+            return ResponseEntity.ok(suggestions);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
 
     @PostMapping("/login")
     public boolean checkPassword(@RequestBody UserPasswordCheckDto userPasswordCheckDto) {

@@ -12,11 +12,14 @@ import lombok.NoArgsConstructor;
 public class StoryDto {
     private String userId;
     private String profilePicture;
+    private String username;
     private Long storyId;
     private String storyUrl;
     private String storyType;
     private LocalDateTime storyTime;
     private String storyCaption;
     private boolean isViewed;
+
+ 
 }
    

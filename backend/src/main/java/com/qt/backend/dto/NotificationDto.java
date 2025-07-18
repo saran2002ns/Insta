@@ -16,4 +16,11 @@ public class NotificationDto {
     private UserNameDto user;
     private String type;
     private LocalDateTime createdAt;
+
+    public NotificationDto(Long id, String profilePicture, String userId, String username, String type, java.time.LocalDateTime createdAt) {
+        this.id = id;
+        this.user = new UserNameDto(userId, profilePicture, username);
+        this.type = type;
+        this.createdAt = createdAt;
+    }
 }

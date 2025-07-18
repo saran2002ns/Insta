@@ -14,7 +14,7 @@ import org.springframework.data.repository.query.Param;
 public interface StoryRepository extends JpaRepository<Story, Long> {
 
     @Query("SELECT new com.qt.backend.dto.StoryDto(" +
-            "s.user.userId, s.user.profilePicture, " +
+            "s.user.userId, s.user.profilePicture, s.user.username, " +
             "s.storyId, s.storyUrl, s.storyType, " +
             "s.createdAt, s.caption, " +
             "CASE WHEN sv.user.userId IS NOT NULL THEN true ELSE false END) " +

@@ -24,4 +24,8 @@ public class FollowsService {
        
     }
 
+    public boolean isFollowing(String user1, String user2) {
+        return followsRepository.findAnyFollowByUserIdAndFollowingId(user1, user2);
+    }
+
 }
