@@ -11,18 +11,23 @@ import com.qt.backend.dto.StoryDto;
 import com.qt.backend.service.StoryService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 
 @RestController
-@RequestMapping("/api/stories") 
+@RequestMapping("/api/stories")
 @RequiredArgsConstructor
 public class StoryController {
 
     private final StoryService storyService;
 
     @GetMapping("/{userId}")
-    public List<StoryDto> getStory(@PathVariable String userId) {
-        return storyService.getStoryByUserId(userId);
+    public ResponseEntity<?> getStory(@PathVariable String userId) {
+        try {
+            List<StoryDto> stories = storyService.getStoryByUserId(userId);
+            return ResponseEntity.ok(stories);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
-
 
 }

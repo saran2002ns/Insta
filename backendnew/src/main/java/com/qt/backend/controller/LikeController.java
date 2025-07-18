@@ -11,18 +11,23 @@ import com.qt.backend.dto.LikeDto;
 import com.qt.backend.service.LikeService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 
 @RestController
-@RequestMapping("/api/likes")   
+@RequestMapping("/api/likes")
 @RequiredArgsConstructor
 public class LikeController {
-    
+
     private final LikeService likeService;
 
     @GetMapping("/{postId}")
-    public List<LikeDto> getLikesByPostId(@PathVariable Long postId) {
-        return likeService.getLikesByPostId(postId);
+    public ResponseEntity<?> getLikesByPostId(@PathVariable Long postId) {
+        try {
+            List<LikeDto> likes = likeService.getLikesByPostId(postId);
+            return ResponseEntity.ok(likes);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
-    
-    
+
 }

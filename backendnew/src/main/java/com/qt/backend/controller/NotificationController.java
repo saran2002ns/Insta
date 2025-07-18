@@ -7,27 +7,27 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.qt.backend.dto.PostDto;
-import com.qt.backend.service.TagService;
+import com.qt.backend.dto.NotificationDto;
+import com.qt.backend.service.NotificationService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
-
 @RestController
-@RequestMapping("/api/tags")
+@RequestMapping("/api/notifications")
 @RequiredArgsConstructor
-public class TagController {
+public class NotificationController {
 
-    private final TagService tagService;
+    private final NotificationService notificationService;
 
-    @GetMapping("/{postId}")
-    public ResponseEntity<?> getTagsByPostId(@PathVariable String userId) {
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getNotifications(@PathVariable String userId) {
         try {
-            List<PostDto> tags = tagService.getTaggedPostsByUserId(userId);
-            return ResponseEntity.ok(tags);
+            List<NotificationDto> notifications = notificationService.getNotifications(userId);
+            return ResponseEntity.ok(notifications);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }
+
 }

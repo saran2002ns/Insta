@@ -22,14 +22,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         @Query("SELECT new com.qt.backend.dto.PostDto(p.postId, p.mediaUrl, p.mediaType, p.caption, p.createdAt, p.user.userId, p.user.profilePicture) "
                         +
                         "FROM Post p WHERE p.user.userId = :userId")
-        List<PostDto> findPostsByUserId(@Param("userId") Long userId);
+        List<PostDto> findPostsByUserId(@Param("userId") String userId);
 
         @Query("SELECT new com.qt.backend.dto.PostDto(p.postId, p.mediaUrl, p.mediaType, p.caption, p.createdAt, p.user.userId, p.user.profilePicture) "
                         +
                         "FROM Post p " +
                         "WHERE (p.user.userId IN :followingIds OR p.user.isPrivate = false) " +
                         "AND p.postId NOT IN (SELECT l.post.postId FROM Like l WHERE l.user.userId = :userId)")
-        List<PostDto> findFeedPostsForUser(@Param("userId") Long userId,
+        List<PostDto> findFeedPostsForUser(@Param("userId") String userId,
                         @Param("followingIds") HashSet<String> followingIds, Pageable pageable);
 
         @Query("SELECT new com.qt.backend.dto.PostDto(p.postId, p.mediaUrl, p.mediaType, p.caption, p.createdAt, p.user.userId, p.user.profilePicture) "
@@ -38,7 +38,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                         "WHERE (p.user.userId IN :followingIds OR p.user.isPrivate = false) " +
                         "AND p.mediaType = 'video' " +
                         "AND p.postId NOT IN (SELECT l.post.postId FROM Like l WHERE l.user.userId = :userId)")
-        List<PostDto> findReelsPostsForUser(@Param("userId") Long userId,
+        List<PostDto> findReelsPostsForUser(@Param("userId") String userId,
                         @Param("followingIds") HashSet<String> followingIds, Pageable pageable);
 
 }

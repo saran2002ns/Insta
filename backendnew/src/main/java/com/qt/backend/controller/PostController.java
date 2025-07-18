@@ -12,6 +12,7 @@ import com.qt.backend.dto.PostDto;
 import com.qt.backend.service.PostService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -20,22 +21,48 @@ public class PostController {
 
     private final PostService postService;
 
+    // Example for a single post
     // @GetMapping("/{postId}/user/{userId}")
-    // public PostDto getPostByIdAndUserId(@PathVariable Long postId, @PathVariable Long userId) {
-    //     return postService.getPostByIdAndUserId(postId, userId);
+    // public ResponseEntity<PostDto> getPostByIdAndUserId(@PathVariable Long
+    // postId, @PathVariable Long userId) {
+    // PostDto post = postService.getPostByIdAndUserId(postId, userId);
+    // if (post == null) {
+    // return ResponseEntity.notFound().build();
+    // }
+    // return ResponseEntity.ok(post);
     // }
 
     @GetMapping("/{userId}")
-    public List<PostDto> getPostsByUserId(@PathVariable Long userId) {
-        return postService.getPostsByUserId(userId);
+    public ResponseEntity<?> getPostsByUserId(@PathVariable String userId) {
+        try {
+            List<PostDto> posts = postService.getPostsByUserId(userId);
+            return ResponseEntity.ok(posts);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
 
     @GetMapping("/feed/{userId}")
-    public List<PostDto> getFeedPostsForUser( @PathVariable Long userId, @RequestParam(defaultValue = "0") int page ) {
-        return postService.getFeedPostsForUser(userId, page);
+    public ResponseEntity<?> getFeedPostsForUser(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page) {
+        try {
+            List<PostDto> posts = postService.getFeedPostsForUser(userId, page);
+            return ResponseEntity.ok(posts);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
+
     @GetMapping("/reels/{userId}")
-    public List<PostDto> getReelsPostsForUser( @PathVariable Long userId, @RequestParam(defaultValue = "0") int page ) {
-        return postService.getReelsPostsForUser(userId, page);
+    public ResponseEntity<?> getReelsPostsForUser(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page) {
+        try {
+            List<PostDto> posts = postService.getReelsPostsForUser(userId, page);
+            return ResponseEntity.ok(posts);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
 }
