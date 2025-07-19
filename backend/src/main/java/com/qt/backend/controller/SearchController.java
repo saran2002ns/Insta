@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.qt.backend.dto.UserDto;
-import com.qt.backend.dto.UserNameDto;
 import com.qt.backend.service.SearchService;
 
 import lombok.RequiredArgsConstructor;

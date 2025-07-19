@@ -42,6 +42,7 @@ public class PostController {
         }
     }
 
+
     @GetMapping("/{userId}/{postId}")
     public ResponseEntity<?> getPostByIdAndUserId(@PathVariable String userId, @PathVariable Long postId) {
         try {

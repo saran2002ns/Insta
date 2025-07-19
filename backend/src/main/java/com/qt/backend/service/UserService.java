@@ -3,7 +3,10 @@ package com.qt.backend.service;
 import com.qt.backend.dto.UserDto;
 import com.qt.backend.dto.UserNameDto;
 import com.qt.backend.dto.UserPasswordCheckDto;
+import com.qt.backend.dto.UserProfileDto;
 import com.qt.backend.model.User;
+import com.qt.backend.repo.FollowsRepository;
+import com.qt.backend.repo.PostRepository;
 import com.qt.backend.repo.UserRepository;
 
 import java.util.List;
@@ -17,10 +20,21 @@ import org.springframework.data.domain.PageRequest;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final FollowsService followsService;
+    private final FollowsRepository followsRepository;
+    private final PostRepository postRepository;
+    public UserProfileDto getUserById(String userId,String userId2) {
+        User user = userRepository.findByUserId(userId);
+        UserProfileDto userProfileDto = new UserProfileDto(user.getUserId(), user.getProfilePicture(), user.getUsername(), user.getBio(), user.isPrivate());
+        if(!userId.equals(userId2))
+        userProfileDto.setIsFollowed(followsRepository.findAnyFollowByUserIdAndFollowingId(userId, userId2));
+        else
+        userProfileDto.setIsFollowed(true);
 
-    public User getUserById(String userId) {
-        return userRepository.findByUserId(userId);
+        userProfileDto.setTotalPosts(postRepository.countPostsByUserId(userId));
+        userProfileDto.setTotalFollowers(followsRepository.countFollowersByUserId(userId));
+        userProfileDto.setTotalFollowing(followsRepository.countFollowingByUserId(userId));
+        return userProfileDto;
+       
     }
 
     public boolean checkPassword(UserPasswordCheckDto userPasswordCheckDto) {
@@ -32,9 +46,6 @@ public class UserService {
 
     public List<UserDto> getUserSuggestions(String userId) {
         List<UserDto> users = userRepository.findUsersNotFollowedBy(userId, PageRequest.of(0, 10));
-        for (UserDto user : users) {
-            user.setIsFollowed(followsService.isFollowing(userId, user.getUserId()));
-        }
         return users;
     }
 

@@ -5,12 +5,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.qt.backend.dto.UserDto;
-import com.qt.backend.dto.UserNameDto;
 import com.qt.backend.dto.UserPasswordCheckDto;
-import com.qt.backend.model.User;
+import com.qt.backend.dto.UserProfileDto;
+
 import com.qt.backend.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-
 
 @RestController
 @RequestMapping("/api/users")
@@ -28,15 +28,15 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUser(@PathVariable String userId) {
+    public ResponseEntity<?> getUser(@PathVariable String userId,@RequestParam String userId2 ) {
         try {
-            User user = userService.getUserById(userId);
+            UserProfileDto user = userService.getUserById(userId,userId2);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }
-    
+
     @GetMapping("/{userId}/suggestions")
     public ResponseEntity<?> getUserSuggestions(@PathVariable String userId) {
         try {
@@ -46,7 +46,6 @@ public class UserController {
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }
-
 
     @PostMapping("/login")
     public boolean checkPassword(@RequestBody UserPasswordCheckDto userPasswordCheckDto) {
