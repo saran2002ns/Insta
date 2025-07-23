@@ -33,9 +33,9 @@ public class PostController {
     // }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getPostsByUserId(@PathVariable String userId) {
+    public ResponseEntity<?> getPostsByUserId(@PathVariable String userId, @RequestParam String loggedInUserId) {
         try {
-            List<PostDto> posts = postService.getPostsByUserId(userId);
+            List<PostDto> posts = postService.getPostsByUserId(userId,loggedInUserId);
             return ResponseEntity.ok(posts);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
@@ -43,18 +43,18 @@ public class PostController {
     }
 
 
-    @GetMapping("/{userId}/{postId}")
-    public ResponseEntity<?> getPostByIdAndUserId(@PathVariable String userId, @PathVariable Long postId) {
-        try {
-            PostDto post = postService.getPostById(postId, userId);
-            return ResponseEntity.ok(post);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
-        }
-    }
+    // @GetMapping("/{userId}/{postId}")
+    // public ResponseEntity<?> getPostByIdAndUserId(@PathVariable String userId, @PathVariable Long postId) {
+    //     try {
+    //         PostDto post = postService.getPostById(postId, userId);
+    //         return ResponseEntity.ok(post);
+    //     } catch (Exception e) {
+    //         return ResponseEntity.status(500).body(e.getMessage());
+    //     }
+    // }
 
 
-    @GetMapping("/feed/{userId}")
+    @GetMapping("/feeds/{userId}")
     public ResponseEntity<?> getFeedPostsForUser(
             @PathVariable String userId,
             @RequestParam(defaultValue = "0") int page) {

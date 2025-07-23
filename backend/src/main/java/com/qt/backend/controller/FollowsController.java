@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.qt.backend.dto.UserNameDto;
+import com.qt.backend.dto.UserDto;
 import com.qt.backend.service.FollowsService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class FollowsController {
     @GetMapping("/followers/{userId}")
     public ResponseEntity<?> getFollowers(@PathVariable String userId) {
         try {
-            List<UserNameDto> followers = followsService.getFollowersByUserId(userId);
+            List<UserDto> followers = followsService.getFollowersByUserId(userId);
             return ResponseEntity.ok(followers);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
@@ -35,7 +35,7 @@ public class FollowsController {
     @GetMapping("/following/{userId}")
     public ResponseEntity<?> getFollowing(@PathVariable String userId) {
         try {
-            List<UserNameDto> following = followsService.getFollowingByUserId(userId);
+            List<UserDto> following = followsService.getFollowingByUserId(userId);
             return ResponseEntity.ok(following);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());

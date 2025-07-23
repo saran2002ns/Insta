@@ -44,6 +44,8 @@ public class UserService {
 
     }
 
+    
+
     public List<UserDto> getUserSuggestions(String userId) {
         List<UserDto> users = userRepository.findUsersNotFollowedBy(userId, PageRequest.of(0, 10));
         return users;

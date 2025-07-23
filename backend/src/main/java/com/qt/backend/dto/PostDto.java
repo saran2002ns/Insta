@@ -18,11 +18,8 @@ public class PostDto {
     private Long comments;
     private boolean isLiked;
     private boolean isSaved;
-    private String userId;
-    private String profilePicture;
-    private String username;
-    private boolean isFollowed;
-    private boolean isPrivate;
+    private UserDto user;
+   
 
     public PostDto(Long postId, String mediaUrl, String mediaType, String caption, java.time.LocalDateTime createdAt, String userId, String profilePicture, String username, boolean isPrivate) {
         this.postId = postId;
@@ -30,10 +27,7 @@ public class PostDto {
         this.mediaType = mediaType;
         this.caption = caption;
         this.createdAt = createdAt;
-        this.userId = userId;
-        this.profilePicture = profilePicture;
-        this.username = username;
-        this.isPrivate = isPrivate;
+        this.user = new UserDto(userId,profilePicture,username,isPrivate);
     }
 
     public void setIsLiked(boolean isLiked) {
@@ -42,11 +36,6 @@ public class PostDto {
     public void setIsSaved(boolean isSaved) {
         this.isSaved = isSaved;
     }
-    public void setIsFollowed(boolean isFollowed) {
-        this.isFollowed = isFollowed;
-    }
-    public void setIsPrivate(boolean isPrivate) {
-        this.isPrivate = isPrivate;
-    }
+   
 }
 

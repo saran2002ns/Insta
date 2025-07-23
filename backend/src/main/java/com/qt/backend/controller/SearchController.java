@@ -22,9 +22,9 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping("/{query}")
-    public ResponseEntity<?> searchPosts(@PathVariable String query, @RequestParam String userId) {
+    public ResponseEntity<?> searchPosts(@PathVariable String query, @RequestParam String loggedInUserId) {
         try {
-            List<UserDto> results = searchService.searchPosts(query, userId);
+            List<UserDto> results = searchService.searchPosts(query, loggedInUserId);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());

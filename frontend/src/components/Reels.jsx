@@ -1,64 +1,63 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { sampleUsers, reelCaptions, reelTags, reelLocations, reelVideos } from '../db/DB';
-import {
-  FaVolumeMute,
-  FaPlay,
-} from "react-icons/fa";
+import { reelTags, reelLocations, reelData } from '../service/DB';
+import { FaVolumeMute, FaPlay } from "react-icons/fa";
 import { MdLocationPin } from "react-icons/md";
 import { useSwipeable } from 'react-swipeable';
 import PostInfo from './PostInfo';
-
-// Helper to generate fake reels
-const generateReels = (startIdx, count) => {
-  const users = sampleUsers.map(u => ({ name: u.username, avatar: u.avatar }));
-  return Array.from({ length: count }, (_, i) => {
-    const idx = (startIdx + i) % users.length;
-    return {
-      id: startIdx + i + 1,
-      url: reelVideos[(startIdx + i) % reelVideos.length],
-      captionTop: reelCaptions[(startIdx + i) % reelCaptions.length],
-      avatar: users[idx].avatar,
-      user: users[idx].name,
-      tag: reelTags[(startIdx + i) % reelTags.length],
-      location: reelLocations[(startIdx + i) % reelLocations.length],
-      likes: Math.floor(Math.random() * 300000) + 1000,
-      comments: Math.floor(Math.random() * 300) + 10,
-    };
-  });
-};
+import { getReels} from '../service/Api';
 
 const INITIAL_LOAD = 10;
 const LOAD_MORE = 10;
 
 export default function Reels() {
-  const [reels, setReels] = useState(() => generateReels(0, INITIAL_LOAD));
+  const [reels, setReels] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
   const [muted, setMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const containerRef = useRef(null);
   const snapRefs = useRef([]);
-  const touchStartY = useRef(null);
-  const scrollTimeout = useRef(null);
   const navigate = useNavigate();
-  const [likedReels, setLikedReels] = useState({});
-  const [savedReels, setSavedReels] = useState({});
-  const [reelsState, setReelsState] = useState(reels);
   const [selectedReel, setSelectedReel] = useState(null);
+  const [followRequests, setFollowRequests] = useState({});
 
   // Infinite scroll: load more reels when at the end
   useEffect(() => {
-    if (currentIndex >= reels.length - 2) {
+    if (currentIndex >= reels.length - 2 && reels.length < reelData.length) {
       setTimeout(() => {
-        setReels((prev) => [
-          ...prev,
-          ...generateReels(prev.length, LOAD_MORE),
-        ]);
+        const currentLength = reels.length;
+        const nextBatch = reelData.slice(currentLength, currentLength + LOAD_MORE).map(reel => ({
+          ...reel,
+          tag: reelTags[Math.floor(Math.random() * reelTags.length)],
+          location: reelLocations[Math.floor(Math.random() * reelLocations.length)],
+        }));
+        setReels(prev => [...prev, ...nextBatch]);
       }, 300);
     }
   }, [currentIndex, reels.length]);
 
+  useEffect(() => {
+    getReels().then(data =>{
+      
+     const reeldatas= data.slice(0, INITIAL_LOAD).map(reel => ({
+          ...reel,
+          tag: reelTags[Math.floor(Math.random() * reelTags.length)],
+          location: reelLocations[Math.floor(Math.random() * reelLocations.length)],
+        }))
+        setReels(reeldatas);
+   
+    
+    }).catch(()=>{
+      setReels(
+        reelData.slice(0, INITIAL_LOAD).map(reel => ({
+            ...reel,
+            tag: reelTags[Math.floor(Math.random() * reelTags.length)],
+            location: reelLocations[Math.floor(Math.random() * reelLocations.length)],
+          }))
+        );
+    });
+  }, []);
   // Intersection Observer for snap detection
   useEffect(() => {
     const options = {
@@ -116,13 +115,6 @@ export default function Reels() {
 
   // Handle wheel scroll to move one video at a time
   const handleWheel = (e) => {
-    if (scrollTimeout.current) {
-      e.preventDefault();
-      return;
-    }
-    scrollTimeout.current = setTimeout(() => {
-      scrollTimeout.current = null;
-    }, 1000);
     e.preventDefault();
     if (e.deltaY > 0 && currentIndex < reels.length - 1) {
       setCurrentIndex((prev) => prev + 1);
@@ -138,7 +130,7 @@ export default function Reels() {
     onSwipedDown: () => {
       if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
     },
-    delta: 50, // minimum distance(px) before a swipe is detected
+    delta: 50,
     trackTouch: true,
     trackMouse: false,
     preventDefaultTouchmoveEvent: true,
@@ -153,12 +145,8 @@ export default function Reels() {
 
   // Like button handler
   const handleLike = (reelId) => {
-    setLikedReels((prev) => ({
-      ...prev,
-      [reelId]: !prev[reelId],
-    }));
-    setReelsState((prevReels) =>
-      prevReels.map((reel) =>
+    setReels(prevReels =>
+      prevReels.map(reel =>
         reel.id === reelId
           ? { ...reel, liked: !reel.liked, likes: !reel.liked ? reel.likes + 1 : reel.likes - 1 }
           : reel
@@ -167,17 +155,43 @@ export default function Reels() {
   };
   // Save button handler
   const handleSave = (reelId) => {
-    setSavedReels((prev) => ({
-      ...prev,
-      [reelId]: !prev[reelId],
-    }));
-    setReelsState((prevReels) =>
-      prevReels.map((reel) =>
+    setReels(prevReels =>
+      prevReels.map(reel =>
         reel.id === reelId ? { ...reel, saved: !reel.saved } : reel
       )
     );
   };
 
+  // Follow button handler
+  const handleFollow = (userId, isPrivate) => {
+    setReels(prevReels =>
+      prevReels.map(reel =>
+        reel.user.userId === userId
+          ? isPrivate
+            ? reel // For private, do not change followed
+            : { ...reel, user: { ...reel.user, followed: !reel.user.followed } }
+          : reel
+      )
+    );
+    if (isPrivate) {
+      setFollowRequests(prev => ({ ...prev, [userId]: true }));
+    }
+  };
+
+  const handleUserClick = (userId, user) => {
+    if (window.location.pathname === `/user/${userId}`) {
+      navigate('/', { replace: true });
+      setTimeout(() => {
+        navigate(`/user/${userId}`, { replace: true, state: { user } });
+        window.dispatchEvent(new Event('forceSidebarReset'));
+        if (props.onCloseOverlays) props.onCloseOverlays();
+      }, 0);
+    } else {
+      navigate(`/user/${userId}`, { state: { user } });
+      if (props.onCloseOverlays) props.onCloseOverlays();
+    }
+  };
+  console.log('reels',reels);
   return (
     <div
       ref={containerRef}
@@ -188,55 +202,53 @@ export default function Reels() {
     >
       {reels.map((reel, index) => (
         <div
-          key={reel.id}
+          key={reel.id || index}
           data-index={index}
           ref={el => snapRefs.current[index] = el}
           className="reel-snap w-full h-[calc(100vh-64px)] flex items-center justify-center bg-white"
           style={{ margin: 0, padding: 0 }}
         >
           <div className="flex items-center justify-center h-full">
-            {/* Video container */}
+            {/* Video or Image container */}
             <div
-              className=" relative   overflow-hidden cursor-pointer max-h-full max-w-[300px] w-full h-full flex items-center justify-center"
+              className="relative overflow-hidden cursor-pointer max-h-full max-w-[300px] w-full h-full flex items-center justify-center"
               onClick={togglePlay}
             >
-              {/* Video */}
-              <video
-                ref={(el) => (videoRefs.current[index] = el)}
-                src={reel.url}
-                className="w-full h-full object-cover max-h-full"
-                muted={muted}
-                loop
-                playsInline
-              />
-              {/* Caption on top */}
-              {/* <div className="absolute top-3 w-full px-4 text-center pointer-events-none">
-                <p className="text-white text-sm font-light">
-                  {reel.captionTop.split(" ").map((word, idx) => {
-                    if (word === "Meghalaya")
-                      return (
-                        <span key={idx} className="text-yellow-400 font-semibold">
-                          {word + " "}
-                        </span>
-                      );
-                    if (word === "September")
-                      return (
-                        <span key={idx} className="text-blue-300 font-semibold">
-                          {word + " "}
-                        </span>
-                      );
-                    return word + " ";
-                  })}
-                </p>
-              </div> */}
+              {reel.mediaType === 'video' ? (
+                <video
+                  ref={el => (videoRefs.current[index] = el)}
+                  className="w-full h-full object-cover max-h-full"
+                  muted={muted}
+                  loop
+                  playsInline
+                  onError={e => {
+                    console.error('Video failed to load:', reel.mediaUrl, e);
+                  }}
+                >
+                  <source src={reel.mediaUrl} type="video/mp4" />
+                  <source src="https://samplelib.com/mp4/sample-5s.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              ) : reel.mediaUrl ? (
+                <img
+                  src={reel.mediaUrl}
+                  alt={reel.caption || 'reel'}
+                  className="w-full h-full object-cover max-h-full"
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full bg-gray-200 text-gray-600">
+                  No media available
+                </div>
+              )}
               {/* Mute Icon */}
               <button
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   toggleMute();
                 }}
                 className="absolute top-2 right-2 bg-black/60 rounded-full p-2 text-white"
                 style={{ margin: 0, padding: 0 }}
+                aria-label="Mute"
               >
                 <FaVolumeMute size={16} />
               </button>
@@ -250,18 +262,54 @@ export default function Reels() {
               <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white text-sm pointer-events-none">
                 <div className="flex items-center gap-2 mb-2 pointer-events-auto">
                   <img
-                    src={reel.avatar}
+                    src={reel.user.profilePicture}
                     className="w-8 h-8 rounded-full border border-white cursor-pointer hover:opacity-80"
-                    onClick={() => navigate(`/user/${reel.user}`)}
-                    alt={reel.user}
+                    onClick={() => handleUserClick(reel.user.userId, reel.user)}
+                    alt={reel.user.userId}
                   />
                   <span
                     className="font-semibold cursor-pointer hover:underline"
-                    onClick={() => navigate(`/user/${reel.user}`)}
+                    onClick={() => handleUserClick(reel.user.userId, reel.user)}
                   >
-                    @{reel.user}
+                    @{reel.user.userId}
                   </span>
-                  <button className="text-blue-400 ml-1 text-xs pointer-events-auto">Follow</button>
+                  <button
+                    className={`ml-1 text-xs pointer-events-auto px-3 py-1 rounded font-semibold transition-colors duration-150 ${
+                      followRequests[reel.user.userId]
+                        ? 'bg-transparent text-gray-500 border border-gray-300'
+                        : reel.user.followed
+                          ? ' text-gray-500 bg-transparent border border-gray-300'
+                          : ' text-blue-400 bg-transparent border border-gray-300'
+                    }`}
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (followRequests[reel.user.userId]) {
+                        // Cancel follow request
+                        setFollowRequests(prev => {
+                          const updated = { ...prev };
+                          delete updated[reel.user.userId];
+                          return updated;
+                        });
+                      } else if (reel.user.followed) {
+                        // Unfollow
+                        handleFollow(reel.user.userId, false);
+                      } else if (reel.user.private) {
+                        // Send follow request
+                        setFollowRequests(prev => ({ ...prev, [reel.user.userId]: true }));
+                      } else {
+                        // Follow public
+                        handleFollow(reel.user.userId, false);
+                      }
+                    }}
+                    // Always enabled so user can unfollow or cancel request
+                    disabled={false}
+                  >
+                    {followRequests[reel.user.userId]
+                      ? 'Requested'
+                      : reel.user.followed
+                        ? 'Following'
+                        : 'Follow'}
+                  </button>
                 </div>
                 <div className="text-xs mb-2">
                   📍 All the places to visit in {reel.location.split(",")[0]}...
@@ -282,31 +330,31 @@ export default function Reels() {
                 <button
                   className="hover:scale-110 transition-transform"
                   aria-label="Like"
-                  onClick={() => handleLike(reelsState[currentIndex].id)}
+                  onClick={() => handleLike(reel.id)}
                 >
-                  {reelsState[currentIndex].liked ? (
+                  {reel.liked ? (
                     <i className="fa-solid fa-heart text-2xl text-red-500"></i>
                   ) : (
                     <i className="fa-regular fa-heart text-2xl"></i>
                   )}
                 </button>
-                <span className="text-xs mt-1">{Math.floor(reelsState[currentIndex]?.likes / 1000)}K</span>
+                <span className="text-xs mt-1">{Math.floor(reel.likes)}</span>
               </div>
               <div className="flex flex-col items-center">
                 <button
                   className="hover:scale-110 transition-transform"
                   aria-label="Comment"
-                  onClick={() => setSelectedReel(reelsState[currentIndex])}
+                  onClick={() => setSelectedReel(reel)}
                 >
                   <i className="fa-regular fa-comment text-2xl"></i>
                 </button>
-                <span className="text-xs mt-1">{reelsState[currentIndex]?.comments}</span>
+                <span className="text-xs mt-1">{reel.comments}</span>
               </div>
               <div className="flex flex-col items-center">
                 <button
                   className="hover:scale-110 transition-transform"
                   aria-label="Share"
-                  onClick={() => setSelectedReel(reelsState[currentIndex])}
+                  onClick={() => setSelectedReel(reel)}
                 >
                   <i className="fa-regular fa-paper-plane text-2xl"></i>
                 </button>
@@ -315,16 +363,15 @@ export default function Reels() {
                 <button
                   className="hover:scale-110 transition-transform"
                   aria-label="Save"
-                  onClick={() => handleSave(reelsState[currentIndex].id)}
+                  onClick={() => handleSave(reel.id)}
                 >
-                  {reelsState[currentIndex].saved ? (
+                  {reel.saved ? (
                     <i className="fa-solid fa-bookmark text-2xl text-black"></i>
                   ) : (
                     <i className="fa-regular fa-bookmark text-2xl"></i>
                   )}
                 </button>
               </div>
-
             </div>
           </div>
         </div>

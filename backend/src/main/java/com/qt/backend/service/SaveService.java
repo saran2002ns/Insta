@@ -28,7 +28,7 @@ public class SaveService {
             post.setComments(commentRepository.findCountOfCommentByPostId(post.getPostId()));
             post.setIsLiked(likeRepository.findAnyLikeByPostIdAndUserId(post.getPostId(), userId));
             post.setIsSaved(saveRepository.findAnySaveByPostIdAndUserId(post.getPostId(), userId));
-            post.setIsFollowed(followsRepository.findAnyFollowByUserIdAndFollowingId(userId, post.getUserId()));
+            post.getUser().setIsFollowed(followsRepository.findAnyFollowByUserIdAndFollowingId(userId, post.getUser().getUserId()));
         }
         return posts;
     }

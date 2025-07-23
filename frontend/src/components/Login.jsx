@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUsers } from '../db/DB';
+import { loginUsers } from '../service/DB';
+import { setUserId } from '../service/Api';
 
 const Login = () => {
   const [userIdName, setUserIdName] = useState('');
@@ -26,6 +27,8 @@ const Login = () => {
     );
     if (foundUser) {
       localStorage.setItem('user', JSON.stringify(foundUser));
+      // userId=foundUser.userId;
+      setUserId('u001');
       setLoading(false);
       navigate('/');
     } else {
@@ -90,7 +93,7 @@ const Login = () => {
         </form>
         <div className="flex flex-row gap-4 mt-4 w-full">
           <button
-            onClick={() => quickLogin('chitti_robo', 'chitti123')}
+            onClick={() => quickLogin('mira_lennox', '$2b$10$Lk9YP5r7vX6uWtxfJszpquK9rKpQXjU3f9TCzIKYzG2OrRfPmlqai')}
             className="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-2 rounded-lg shadow text-sm transition-all duration-150"
             disabled={loading}
           >

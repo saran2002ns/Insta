@@ -44,7 +44,7 @@ function App() {
           <Route path="/reels" element={<Reels />} />
           <Route path="/message" element={<Message />} />
           <Route path="/create" element={<Create />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/more" element={<More />} />
         </Route>
       </Routes>

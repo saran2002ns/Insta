@@ -1,75 +1,91 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-
 export default function StoryModal({ stories, initialIndex = 0, onClose, onStoryViewed }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [progress, setProgress] = useState(0);
   const videoRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const imageViewTimeout = useRef(null);
 
-  // Local state for stories to update viewed status instantly
-  const [localStories, setLocalStories] = useState(stories);
+  const currentStory = stories[currentIndex]; // Move this up before useEffects
 
-  useEffect(() => {
-    setLocalStories(stories);
-  }, [stories]);
+  const IMAGE_DURATION = 10; // seconds for images
+  const VIDEO_DURATION = 15; // seconds for videos
 
-  const MAX_DURATION = 15; // seconds
+  // Mark current story as viewed and notify parent (moved to onPlay/onImageView)
+  // useEffect(() => {
+  //   if (currentStory?.viewed) return;
+  //   if (onStoryViewed && currentStory?._originalIndex !== undefined) {
+  //     onStoryViewed(currentStory._originalIndex); // Use the original index!
+  //   }
+  // }, [currentIndex, onStoryViewed, stories, currentStory]);
 
-  // Mark current story as viewed in local state and notify parent
-  useEffect(() => {
-    setLocalStories(prevStories => {
-      if (prevStories[currentIndex]?.viewed) return prevStories;
-      const updated = [...prevStories];
-      updated[currentIndex] = { ...updated[currentIndex], viewed: true };
-      return updated;
-    });
-    if (onStoryViewed) {
-      onStoryViewed(currentIndex);
+  // Helper to go to next story or close
+  const goToNextOrClose = () => {
+    if (currentIndex < stories.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      onClose();
     }
-  }, [currentIndex, onStoryViewed]);
+  };
 
   useEffect(() => {
     setProgress(0);
+    setVideoError(false);
     const video = videoRef.current;
-    if (!video) return;
-    const updateProgress = () => {
-      const duration = video.duration ? Math.min(video.duration, MAX_DURATION) : MAX_DURATION;
-      setProgress((video.currentTime / duration) * 100);
-      if (video.currentTime >= MAX_DURATION) {
-        if (currentIndex < localStories.length - 1) {
-          setCurrentIndex((prev) => prev + 1);
-        } else {
-          onClose();
+    let imageProgressInterval;
+    if (currentStory.mediaType === 'image') {
+      // Animate progress bar for image over IMAGE_DURATION seconds
+      const start = Date.now();
+      imageProgressInterval = setInterval(() => {
+        const elapsed = (Date.now() - start) / 1000;
+        const percent = Math.min((elapsed / IMAGE_DURATION) * 100, 100);
+        setProgress(percent);
+        if (percent >= 100) {
+          clearInterval(imageProgressInterval);
         }
-      }
-    };
-    video.addEventListener('timeupdate', updateProgress);
-    // Seek to 0 if video is longer than MAX_DURATION
-    const handleLoadedMetadata = () => {
-      if (video.duration > MAX_DURATION) {
-        video.currentTime = 0;
-      }
-    };
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    // Listen for play/pause events
-    const handlePlay = () => setIsPaused(false);
-    const handlePause = () => setIsPaused(true);
-    video.addEventListener('play', handlePlay);
-    video.addEventListener('pause', handlePause);
-    setIsPaused(video.paused);
+      }, 50);
+    } else if (video) {
+      let effectiveDuration = VIDEO_DURATION;
+      const updateProgress = () => {
+        // Use the actual video duration if less than VIDEO_DURATION
+        effectiveDuration = video.duration ? Math.min(video.duration, VIDEO_DURATION) : VIDEO_DURATION;
+        setProgress((video.currentTime / effectiveDuration) * 100);
+        if (video.currentTime >= effectiveDuration) {
+          goToNextOrClose();
+        }
+      };
+      video.addEventListener('timeupdate', updateProgress);
+      // Seek to 0 if video is longer than VIDEO_DURATION
+      const handleLoadedMetadata = () => {
+        if (video.duration > VIDEO_DURATION) {
+          video.currentTime = 0;
+        }
+      };
+      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      // Listen for play/pause events
+      const handlePlay = () => setIsPaused(false);
+      const handlePause = () => setIsPaused(true);
+      video.addEventListener('play', handlePlay);
+      video.addEventListener('pause', handlePause);
+      setIsPaused(video.paused);
+      return () => {
+        video.removeEventListener('timeupdate', updateProgress);
+        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        video.removeEventListener('play', handlePlay);
+        video.removeEventListener('pause', handlePause);
+      };
+    }
     return () => {
-      video.removeEventListener('timeupdate', updateProgress);
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('play', handlePlay);
-      video.removeEventListener('pause', handlePause);
+      if (imageProgressInterval) clearInterval(imageProgressInterval);
     };
-  }, [currentIndex, localStories.length, onClose]);
+  }, [currentIndex, stories.length, onClose, currentStory.mediaType]);
 
   useEffect(() => {
     const video = videoRef.current;
     const handleEnded = () => {
-      if (currentIndex < localStories.length - 1) {
+      if (currentIndex < stories.length - 1) {
         setCurrentIndex((prev) => prev + 1);
       } else {
         onClose();
@@ -77,11 +93,39 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
     };
     video?.addEventListener('ended', handleEnded);
     return () => video?.removeEventListener('ended', handleEnded);
-  }, [currentIndex, localStories.length, onClose]);
+  }, [currentIndex, stories.length, onClose]);
+
+  // Mark as viewed for images after 1s, and auto-advance after IMAGE_DURATION
+  useEffect(() => {
+    let advanceTimeout;
+    // Always auto-advance after IMAGE_DURATION, regardless of viewed status
+    if (currentStory.mediaType === 'image') {
+      if (!currentStory.viewed) {
+        imageViewTimeout.current = setTimeout(() => {
+          if (onStoryViewed && currentStory._originalIndex !== undefined) {
+            onStoryViewed(currentStory._originalIndex);
+          }
+        }, 1000);
+      }
+      // Auto-advance after IMAGE_DURATION seconds
+      advanceTimeout = setTimeout(() => {
+        goToNextOrClose();
+      }, IMAGE_DURATION * 1000);
+    }
+    return () => {
+      if (imageViewTimeout.current) {
+        clearTimeout(imageViewTimeout.current);
+        imageViewTimeout.current = null;
+      }
+      if (advanceTimeout) {
+        clearTimeout(advanceTimeout);
+      }
+    };
+  }, [currentIndex, currentStory, onStoryViewed, stories.length, onClose]);
 
   const handleNext = (e) => {
     e?.stopPropagation();
-    if (currentIndex < localStories.length - 1) {
+    if (currentIndex < stories.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
       onClose();
@@ -95,13 +139,11 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
     }
   };
 
-  const currentStory = localStories[currentIndex];
-
   // Carousel: get prev/next stories for side cards
   const getSideStory = (offset) => {
     const idx = currentIndex + offset;
-    if (idx < 0 || idx >= localStories.length) return null;
-    return localStories[idx];
+    if (idx < 0 || idx >= stories.length) return null;
+    return stories[idx];
   };
   const prevStory = getSideStory(-1);
   const nextStory = getSideStory(1);
@@ -119,8 +161,6 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95">
-     
-    
       {/* Close button top right */}
       <button
         onClick={onClose}
@@ -140,7 +180,7 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
         </button>
       )}
       {/* Next nav arrow at far right */}
-      {currentIndex < localStories.length - 1 && (
+      {currentIndex < stories.length - 1 && (
         <button
           className="fixed right-0 top-1/2 -translate-y-1/2 z-50 bg-black/40 hover:bg-black/60 rounded-full p-2 m-4"
           onClick={handleNext}
@@ -155,24 +195,24 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
         {prevStory ? (
           <div className="hidden md:flex mx-28 flex-col items-center justify-center w-56 h-[70vh] rounded-2xl bg-black/60 shadow-lg scale-90 cursor-pointer transition-all duration-200 relative" onClick={handlePrev}>
             {/* Media */}
-            {prevStory.type === 'video' ? (
-              <video src={prevStory.src} className="w-full h-full object-cover rounded-2xl mt-2 blur-[1.5px] opacity-60" muted />
+            {prevStory.mediaType === 'video' ? (
+              <video src={prevStory.storyUrl} className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" muted />
             ) : (
-              <img src={prevStory.src} alt="prev story" className="w-full h-full object-cover rounded-2xl mt-2 blur-[1.5px] opacity-60" />
+              <img src={prevStory.storyUrl} alt="prev story" className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" />
             )}
             {/* Overlay avatar */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
               <div className={`p-1 w-24 h-24 rounded-full overflow-hidden flex items-center justify-center mb-1 ${prevStory.viewed ? 'border-2 border-white bg-slate-200' : 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600'}`}> 
                 <img
-                  src={prevStory.avatar}
-                  alt={prevStory.name}
+                  src={prevStory.profilePicture}
+                  alt={prevStory.userId}
                   className="w-full h-full rounded-full border-2 border-white object-cover"
                 />
               </div>
             </div>
             {/* Name at bottom */}
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white text-center w-full text-lg font-semibold drop-shadow-lg">
-              {prevStory.name}
+              {prevStory.userId}
             </div>
           </div>
         ) : (
@@ -192,25 +232,56 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
           {/* Top bar: avatar, username, time */}
           <div className="absolute top-10 left-0 right-0 flex items-center justify-between px-6 z-30">
             <div className="flex items-center gap-3">
-              <img src={currentStory.avatar} alt={currentStory.name} className="w-9 h-9 rounded-full border-2 border-white" />
-              <span className="text-white font-semibold text-base">{currentStory.name}</span>
-              <span className="text-gray-300 text-xs ml-2">{currentStory.time || '1h'}</span>
+              <img src={currentStory.profilePicture} alt={currentStory.userId} className="w-9 h-9 rounded-full border-2 border-white" />
+              <span className="text-white font-semibold text-base">{currentStory.userId}</span>
+              <span className="text-gray-300 text-xs ml-2">{currentStory.createdAt || '1h'}</span>
             </div>
           </div>
 
           {/* Story media */}
-          <div className="flex-1 flex items-center justify-center" onClick={currentStory.type === 'video' ? handleStoryClick : undefined} style={{ cursor: currentStory.type === 'video' ? 'pointer' : 'default' }}>
-            {currentStory.type === 'video' ? (
+          <div className="flex-1 flex items-center justify-center bg-black" onClick={currentStory.mediaType === 'video' ? handleStoryClick : undefined} style={{ cursor: currentStory.mediaType === 'video' ? 'pointer' : 'default', minHeight: '60vh', minWidth: '100%' }}>
+            {currentStory.mediaType === 'video' ? (
               <div className="relative w-full h-full flex items-center justify-center">
-                <video
-                  ref={videoRef}
-                  src={currentStory.src}
-                  playsInline
-                  autoPlay
-                  loop={false}
-                  className="max-h-full max-w-full object-contain bg-black rounded-xl shadow-lg"
-                />
-                {isPaused && (
+                {!videoError ? (
+                  <video
+                    ref={videoRef}
+                    src={currentStory.storyUrl}
+                    playsInline
+                    autoPlay
+                    loop={false}
+                    className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg"
+                    onError={(e) => {
+                      console.error('Video error:', e);
+                      console.error('Video URL:', currentStory.storyUrl);
+                      setVideoError(true);
+                    }}
+                    onLoadStart={() => {
+                      console.log('Video loading started:', currentStory.storyUrl);
+                      setVideoError(false);
+                    }}
+                    onCanPlay={() => {
+                      console.log('Video can play:', currentStory.storyUrl);
+                      setVideoError(false);
+                    }}
+                    onPlay={() => {
+                      if (!currentStory.viewed && onStoryViewed && currentStory._originalIndex !== undefined) {
+                        onStoryViewed(currentStory._originalIndex);
+                      }
+                    }}
+                  />
+                ) : (
+                  <div 
+                    className="flex flex-col items-center justify-center text-white cursor-pointer"
+                    onClick={handleNext}
+                  >
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor" className="mb-4">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <p className="text-lg">Video unavailable</p>
+                    <p className="text-sm text-gray-400 mt-2">Click to continue</p>
+                  </div>
+                )}
+                {isPaused && !videoError && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="white" className="opacity-80">
                       <polygon points="8,5 19,12 8,19" />
@@ -220,15 +291,15 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
               </div>
             ) : (
               <img
-                src={currentStory.src}
+                src={currentStory.storyUrl}
                 alt="story"
-                className="max-h-[60vh] max-w-full object-contain bg-black rounded-xl shadow-lg"
+                className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg"
               />
             )}
           </div>
           {/* Reply input at bottom */}
           <form className="flex items-center gap-2 px-4 py-3 bg-black/80 border-t border-gray-800">
-            <input type="text" className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-400 py-1" placeholder={`Reply to ${currentStory.name}...`} />
+            <input type="text" className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-400 py-1" placeholder={`Reply to ${currentStory.userId}...`} />
             <button type="submit" className="text-blue-500 font-semibold">Send</button>
           </form>
         </div>
@@ -236,24 +307,24 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
         {nextStory ? (
           <div className="hidden md:flex flex-col items-center justify-center w-56 h-[70vh] rounded-2xl bg-black/60 shadow-lg scale-90 cursor-pointer transition-all duration-200 mx-28 relative" onClick={handleNext}>
             {/* Media */}
-            {nextStory.type === 'video' ? (
-              <video src={nextStory.src} className="w-full h-full object-cover rounded-2xl mt-2 blur-[1.5px] opacity-60" muted />
+            {nextStory.mediaType === 'video' ? (
+              <video src={nextStory.storyUrl} className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" muted />
             ) : (
-              <img src={nextStory.src} alt="next story" className="w-full h-full object-cover rounded-2xl mt-2 blur-[1.5px] opacity-60" />
+              <img src={nextStory.storyUrl} alt="next story" className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" />
             )}
             {/* Overlay avatar */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
               <div className={`p-1 w-24 h-24 rounded-full overflow-hidden flex items-center justify-center mb-1 ${nextStory.viewed ? 'border-2 border-white bg-slate-200' : 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600'}`}> 
                 <img
-                  src={nextStory.avatar}
-                  alt={nextStory.name}
+                  src={nextStory.profilePicture}
+                  alt={nextStory.userId}
                   className="w-full h-full rounded-full border-2 border-white object-cover"
                 />
               </div>
             </div>
             {/* Name at bottom */}
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white text-center w-full text-lg font-semibold drop-shadow-lg">
-              {nextStory.name}
+              {nextStory.userId}
             </div>
           </div>
         ) : (

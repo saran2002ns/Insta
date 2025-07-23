@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-
+import { commentData,likeData } from '../service/DB';
+import { user ,getComments ,getLikes } from '../service/Api';
 export default function PostInfo({ imageUrls, onClose, post }) {
   if (!post) {
     return (
@@ -18,7 +19,19 @@ export default function PostInfo({ imageUrls, onClose, post }) {
   const [likes, setLikes] = useState(post.likes || 0);
   const [saved, setSaved] = useState(post.saved || false);
   const [commentInput, setCommentInput] = useState("");
-  const [comments, setComments] = useState(post.comments || []);
+  // const [comments, setComments] = useState(post.comments || 0);
+  const [commentList, setCommentList] = useState([]);
+  const [likeList, setLikeList] = useState([]);
+  const [showLikes, setShowLikes] = useState(false);
+
+  useEffect(() => {
+    getComments(post.postId)
+      .then(data => setCommentList(data))
+      .catch(() => setCommentList(commentData));
+    getLikes(post.postId)
+      .then(data => setLikeList(data))
+      .catch(() => setLikeList(likeData));
+  }, [post.postId]);
 
   const handleLike = () => {
     setLiked((prev) => !prev);
@@ -33,15 +46,18 @@ export default function PostInfo({ imageUrls, onClose, post }) {
     if (commentInput.trim() === "") return;
     // For demo, use a mock user for the new comment
     const newComment = {
-      user: {
-        username: "demo_user",
-        avatar: "https://randomuser.me/api/portraits/men/75.jpg"
-      },
-      text: commentInput.trim(),
+      commentId: Date.now(),
+      commentText: commentInput.trim(),
+      commentTime: new Date().toISOString(),
+      user: user
     };
-    setComments((prev) => [...prev, newComment]);
+    setCommentList((prev) => [...prev, newComment]);
+    // setComments((prev) => prev + 1); // This line was commented out in the original file
     setCommentInput("");
   };
+ 
+  const handleShowLikes = () => setShowLikes(true);
+  const handleShowComments = () => setShowLikes(false);
  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex justify-center items-center">
@@ -49,7 +65,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
       <div className="bg-white w-[90%] h-[90%] flex rounded-lg overflow-hidden shadow-lg relative">
         {/* Left: Image/Video Viewer */}
         <div className="flex-1 bg-black flex items-center justify-center relative">
-          {post && post.type === 'video' ? (
+          {post && post.mediaType === 'video' ? (
             <div
               className="relative w-full h-full flex items-center justify-center"
               onClick={() => {
@@ -65,7 +81,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
             >
               <video
                 id="postinfo-video"
-                src={post.src}
+                src={post.mediaUrl}
                 autoPlay
                 playsInline
                 loop
@@ -83,7 +99,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
             </div>
           ) : (
             <img
-              src={post ? post.src : imageUrls[currentIndex]}
+              src={post ? post.mediaUrl : imageUrls[currentIndex]}
               alt="post"
               className="w-full h-full object-contain bg-black"
             />
@@ -96,76 +112,98 @@ export default function PostInfo({ imageUrls, onClose, post }) {
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-2">
               <img
-                src={post.user?.avatar || 'https://randomuser.me/api/portraits/men/75.jpg'}
+                src={post.user.profilePicture || 'https://randomuser.me/api/portraits/men/75.jpg'}
                 className="w-8 h-8 rounded-full"
                 alt="user"
               />
-              <span className="font-semibold">{post.user?.username || 'Unknown User'}</span>
+              <span className="font-semibold">{post.user.userId || 'Unknown User'}</span>
             </div>
             <button onClick={onClose}>
               <X className="w-6 h-6" />
             </button>
           </div>
 
-          {/* Comments */}
+          {/* Likes/Comments Toggle Section */}
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
-            {comments && comments.length > 0 ? (
-              comments.map((comment, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <img src={comment.user.avatar} alt={comment.user.username} className="w-6 h-6 rounded-full" />
-                  <span className="font-semibold text-sm">{comment.user.username}</span>
-                  <span className="text-gray-700 text-sm">{comment.text}</span>
-                </div>
-              ))
+            {showLikes ? (
+              likeList && likeList.length > 0 ? (
+                likeList.map((like, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <img src={like.user.profilePicture} alt={like.user.userId} className="w-6 h-6 rounded-full" />
+                    <span className="font-semibold text-sm">{like.user.userId}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-gray-400 text-sm">No likes yet.</div>
+              )
             ) : (
-              <div className="text-gray-400 text-sm">No comments yet.</div>
+              commentList && commentList.length > 0 ? (
+                commentList.map((comment, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <img src={comment.user.profilePicture} alt={comment.user.userId} className="w-6 h-6 rounded-full" />
+                    <span className="font-semibold text-sm">{comment.user.userId}</span>
+                    <span className="text-gray-700 text-sm">{comment.commentText}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-gray-400 text-sm">No comments yet.</div>
+              )
             )}
           </div>
           <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center pl-2 gap-4">
-           
-                    <button
-                      className="hover:scale-110 transition-transform"
-                      aria-label="Like"
-                      onClick={handleLike}
-                    >
-                      {liked ? (
-                        <i className="fa-solid fa-heart text-2xl text-red-500"></i>
-                      ) : (
-                        <i className="fa-regular fa-heart text-2xl"></i>
-                      )}
-                    </button>
-                    <button className="hover:scale-110 transition-transform" aria-label="Comment"><i className="fa-regular fa-comment text-2xl"></i></button>
-                    <button className="hover:scale-110 transition-transform" aria-label="Share"><i className="fa-regular fa-paper-plane text-2xl"></i></button>
-                  </div>
-                  <button
-                    className="hover:scale-110 transition-transform pr-2"
-                    aria-label="Save"
-                    onClick={handleSave}
-                  >
-                    {saved ? (
-                      <i className="fa-solid fa-bookmark text-2xl text-black"></i>
-                    ) : (
-                      <i className="fa-regular fa-bookmark text-2xl"></i>
-                    )}
-                  </button>
-                </div>
+            <div className="flex items-center pl-2 gap-4">
+              <button
+                className="hover:scale-110 transition-transform"
+                aria-label="Like"
+                onClick={handleLike}
+              >
+                {liked ? (
+                  <i className="fa-solid fa-heart text-2xl text-red-500"></i>
+                ) : (
+                  <i className="fa-regular fa-heart text-2xl"></i>
+                )}
+              </button>
+              <button
+                className="hover:scale-110 transition-transform"
+                aria-label="Comment"
+                onClick={handleShowComments}
+              >
+                <i className="fa-regular fa-comment text-2xl"></i>
+              </button>
+              <button className="hover:scale-110 transition-transform" aria-label="Share"><i className="fa-regular fa-paper-plane text-2xl"></i></button>
+            </div>
+            <button
+              className="hover:scale-110 transition-transform pr-2"
+              aria-label="Save"
+              onClick={handleSave}
+            >
+              {saved ? (
+                <i className="fa-solid fa-bookmark text-2xl text-black"></i>
+              ) : (
+                <i className="fa-regular fa-bookmark text-2xl"></i>
+              )}
+            </button>
+          </div>
 
           {/* Likes & Time */}
-          <div className="px-4 text-sm text-gray-600">Liked by _luckyy_lad and {likes} others</div>
-          <div className="px-4 text-xs text-gray-400 mb-2">October 28, 2023</div>
+          <div className="px-4 text-sm text-gray-600 cursor-pointer" onClick={handleShowLikes}>
+            Liked by {likeList.length > 0 ? likeList[0].user.userId : 'Unknown User'} and {likes} others
+          </div>
+          <div className="px-4 text-xs text-gray-400 mb-2">{post.createdAt}</div>
 
-          {/* Comment Input */}
-          <form className="p-4 border-t flex items-center gap-2" onSubmit={handleAddComment}>
-            <input
-              type="text"
-              placeholder="Add a comment..."
-              className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm"
-              value={commentInput}
-              onChange={e => setCommentInput(e.target.value)}
-            />
-            <button type="submit" className="text-blue-500 font-semibold text-sm">Post</button>
-          </form>
+          {/* Comment Input (only show if not viewing likes) */}
+          {!showLikes && (
+            <form className="p-4 border-t flex items-center gap-2" onSubmit={handleAddComment}>
+              <input
+                type="text"
+                placeholder="Add a comment..."
+                className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm"
+                value={commentInput}
+                onChange={e => setCommentInput(e.target.value)}
+              />
+              <button type="submit" className="text-blue-500 font-semibold text-sm">Post</button>
+            </form>
+          )}
         </div>
       </div>
     </div>

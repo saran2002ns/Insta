@@ -1,6 +1,7 @@
 import React from 'react'
-import { sidebarItems } from '../db/DB'
+import { sidebarItems } from '../service/DB';
 import { Link, useLocation } from 'react-router-dom'
+import { user } from '../service/Api';
 
 function SideBar({ onSearchClick, isSearchMode, onNotificationClick, isNotificationMode, onCloseOverlays, noSidebarSelection }) {
   const location = useLocation();
@@ -14,6 +15,7 @@ function SideBar({ onSearchClick, isSearchMode, onNotificationClick, isNotificat
   }
 
   const isCollapsed = isSearchMode || isNotificationMode;
+  // const loggedInUser = JSON.parse(localStorage.getItem('user'));
 
   return (
     <div className={`flex flex-col h-screen fixed bg-white border-r border-gray-200 transition-all duration-300 ${
@@ -29,6 +31,12 @@ function SideBar({ onSearchClick, isSearchMode, onNotificationClick, isNotificat
       {/* Sidebar Items */}
       <div className='flex flex-col font-roboto font-normal flex-1  py-4'>
         {sidebarItems.map((item, index) => {
+          let path = item.path;
+          let linkState = undefined;
+          if (item.name === 'Profile' && user && user.userId) {
+            path = `/profile/${user.userId}`;
+            linkState = { user: user };
+          }
           // Only highlight overlay icon if overlay is open, otherwise highlight current route
           let isActive = false;
           if (!noSidebarSelection) {
@@ -48,9 +56,9 @@ function SideBar({ onSearchClick, isSearchMode, onNotificationClick, isNotificat
             </div>
           );
 
-          if (item.path) {
+          if (path) {
             return (
-              <Link to={item.path} key={index} tabIndex={0} onClick={onCloseOverlays}>
+              <Link to={path} state={linkState} key={index} tabIndex={0} onClick={onCloseOverlays}>
                 {content}
               </Link>
             );

@@ -28,9 +28,9 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUser(@PathVariable String userId,@RequestParam String userId2 ) {
+    public ResponseEntity<?> getUser(@PathVariable String userId,@RequestParam String loggedInUserId ) {
         try {
-            UserProfileDto user = userService.getUserById(userId,userId2);
+            UserProfileDto user = userService.getUserById(userId,loggedInUserId);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());

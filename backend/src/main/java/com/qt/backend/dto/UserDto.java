@@ -11,7 +11,12 @@ public class UserDto {
     private boolean isPrivate;
     private boolean isFollowed;
 
-
+    public UserDto(String userId, String profilePicture, String username, boolean isPrivate) {
+        this.userId = userId;
+        this.profilePicture = profilePicture;
+        this.username = username;
+        this.isPrivate = isPrivate;
+    }
 
     public UserDto(String userId, String profilePicture, String username, boolean isPrivate, boolean isFollowed) {
         this.userId = userId;

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.qt.backend.dto.PostDto;
 import com.qt.backend.dto.TagDto;
 // import com.qt.backend.model.Post;
 import com.qt.backend.service.TagService;
@@ -25,7 +26,7 @@ public class TagController {
     @GetMapping("/{userId}")
     public ResponseEntity<?> getTagsByPostId(@PathVariable String userId) {
         try {
-            List<TagDto> tags = tagService.getTaggedPostsByUserId(userId);
+            List<PostDto> tags = tagService.getTaggedPostsByUserId(userId);
             return ResponseEntity.ok(tags);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());

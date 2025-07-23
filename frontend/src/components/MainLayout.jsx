@@ -3,7 +3,7 @@ import SideBar from './SideBar';
 import { Outlet, useLocation, useNavigate, matchPath } from 'react-router-dom';
 import Search from './Search';
 import Notification from './Notification';
-import { MAIN_ROUTES } from '../db/DB';
+import { MAIN_ROUTES } from '../service/DB';
 
 const MainLayout = ({ noSidebarSelection, children }) => {
   const [isSearchMode, setIsSearchMode] = useState(false);

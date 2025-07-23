@@ -12,14 +12,13 @@ import lombok.NoArgsConstructor;
 public class NotificationDto {
 
     private Long id;
-    private String userId;
-    private UserNameDto user;
+    private UserDto user;
     private String type;
     private LocalDateTime createdAt;
 
-    public NotificationDto(Long id, String profilePicture, String userId, String username, String type, java.time.LocalDateTime createdAt) {
+    public NotificationDto(Long id, String profilePicture, String userId, String username,boolean isPrivate, String type, java.time.LocalDateTime createdAt) {
         this.id = id;
-        this.user = new UserNameDto(userId, profilePicture, username);
+        this.user = new UserDto(userId, profilePicture, username,isPrivate);
         this.type = type;
         this.createdAt = createdAt;
     }

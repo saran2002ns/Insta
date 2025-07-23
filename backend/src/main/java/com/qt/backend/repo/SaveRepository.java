@@ -17,9 +17,9 @@ public interface SaveRepository extends JpaRepository<Save, Long> {
     @Query("SELECT COUNT(s) > 0 FROM Save s WHERE s.post.postId = :postId AND s.user.userId = :userId")
     boolean findAnySaveByPostIdAndUserId(@Param("postId") Long postId, @Param("userId") String userId);
 
-    @Query("SELECT new com.qt.backend.dto.PostDto(p.postId, p.mediaUrl, p.mediaType, p.caption, p.createdAt, p.user.userId, p.user.profilePicture, p.user.username, p.user.isPrivate) "
-                        +
-                        "FROM Post p " +
-                        "WHERE p.postId IN (SELECT s.post.postId FROM Save s WHERE s.user.userId = :userId)")
+    @Query("SELECT new com.qt.backend.dto.PostDto(s.post.postId, s.post.mediaUrl, s.post.mediaType, s.post.caption, s.post.createdAt, s.post.user.userId, s.post.user.profilePicture, s.post.user.username, s.post.user.isPrivate) "
+                            +
+                        "FROM Save s " +
+                        "WHERE s.user.userId = :userId")
     List<PostDto> findSavedPostsByUserId(String userId);
 } 

@@ -3,7 +3,6 @@ package com.qt.backend.service;
 import java.util.List;
 
 import com.qt.backend.dto.UserDto;
-import com.qt.backend.dto.UserNameDto;
 import com.qt.backend.repo.SearchRepository;
 
 import org.springframework.stereotype.Service;
