@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userData } from '../service/DB';
-import { getSearch } from '../service/Api';
+import { getSearch ,setFollow,setUnfollow } from '../service/Api';
 
 function Search(props) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,9 +34,7 @@ function Search(props) {
     handleSearch(e.target.value);
   };
 
-  const handleButtonClick = () => {
-    handleSearch(searchQuery);
-  };
+
 
   const handleUserClick = (userId, user) => {
     if (window.location.pathname === `/user/${userId}`) {
@@ -89,35 +87,68 @@ function Search(props) {
             ))
           ) : (
             filteredUsers.map((user) => (
-              <div key={user.userId} style={{ textDecoration: 'none', color: 'inherit' }} onClick={() => handleUserClick(user.userId, user)} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
-                <div className="flex items-center space-x-3">
-                  <img
-                    src={user.profilePicture}
-                    alt={user.userId}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <div className="flex items-center space-x-1">
-                      <span className="font-semibold text-sm">{user.userId}</span>
-                      {user.isVerified && (
-                        <i className="fa-solid fa-circle-check text-blue-500 text-xs"></i>
-                      )}
-                    </div>
-                    <span className="text-gray-500 text-sm">{user.userName}</span>
-                  </div>
-                </div>
-                <button className={`px-4 py-1 rounded-lg text-sm font-semibold ${
-                  user.followed 
-                    ? 'text-gray-500 hover:text-red-500' 
-                    : 'text-blue-500 hover:text-blue-600'
-                }`}>
-                  {user.followed ? 'Following' : 'Follow'}
-                </button>
-              </div>
+              <SearchUser key={user.userId} user={user} onUserClick={handleUserClick} />
             ))
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function SearchUser({ user, onUserClick }) {
+  const [requested, setRequested] = useState(false);
+  const [followed, setFollowed] = useState(user.followed || false);
+
+  const handleFollowClick = (e) => {
+    e.stopPropagation();
+    if (requested) {
+      setRequested(false); // Cancel follow request
+    } else if (followed) {
+      setFollowed(false); // Unfollow
+      setUnfollow(user.userId);
+    } else if (user.private) {
+      setRequested(true); // Send follow request
+    } else {
+      setFollowed(true); // Follow public
+      setFollow(user.userId);
+    }
+  };
+
+  return (
+    <div style={{ textDecoration: 'none', color: 'inherit' }} onClick={() => onUserClick(user.userId, user)} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
+      <div className="flex items-center space-x-3">
+        <img
+          src={user.profilePicture}
+          alt={user.userId}
+          className="w-12 h-12 rounded-full object-cover"
+        />
+        <div>
+          <div className="flex items-center space-x-1">
+            <span className="font-semibold text-sm">{user.userId}</span>
+            {user.isVerified && (
+              <i className="fa-solid fa-circle-check text-blue-500 text-xs"></i>
+            )}
+          </div>
+          <span className="text-gray-500 text-sm">{user.userName}</span>
+        </div>
+      </div>
+      <button
+        className={`px-4 py-1 rounded-lg text-sm font-semibold ${
+          requested
+            ? 'text-gray-500 hover:text-red-500'
+            : followed
+              ? 'text-gray-500 hover:text-red-500'
+              : 'text-blue-500 hover:text-blue-600'
+        }`}
+        onClick={handleFollowClick}
+      >
+        {requested
+          ? 'Requested'
+          : followed
+            ? 'Following'
+            : 'Follow'}
+      </button>
     </div>
   );
 }

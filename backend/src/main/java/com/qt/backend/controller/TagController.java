@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.qt.backend.dto.PostDto;
-import com.qt.backend.dto.TagDto;
-// import com.qt.backend.model.Post;
 import com.qt.backend.service.TagService;
 
 import lombok.RequiredArgsConstructor;

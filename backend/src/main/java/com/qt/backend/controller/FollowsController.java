@@ -2,18 +2,21 @@ package com.qt.backend.controller;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.qt.backend.dto.FollowRequest;
 import com.qt.backend.dto.UserDto;
 import com.qt.backend.service.FollowsService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 @RequestMapping("/api/follows")
@@ -51,5 +54,24 @@ public class FollowsController {
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }
-    
+
+    @PostMapping
+    public ResponseEntity<?> followUser(@RequestBody FollowRequest followRequest) {
+        try {
+            followsService.followUser(followRequest.getUserId(), followRequest.getLoggedInUserId());
+            return ResponseEntity.ok(java.util.Map.of("message", "User followed successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> unfollowUser(@RequestBody FollowRequest followRequest) {
+        try {
+            followsService.unfollowUser(followRequest.getUserId(), followRequest.getLoggedInUserId());
+            return ResponseEntity.ok(java.util.Map.of("message", "Unfollowed successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
+        }
+    }
 }

@@ -1,11 +1,11 @@
 import React from 'react'
 import { sidebarItems } from '../service/DB';
 import { Link, useLocation } from 'react-router-dom'
-import { user } from '../service/Api';
+import { getUser } from '../service/Api';
 
 function SideBar({ onSearchClick, isSearchMode, onNotificationClick, isNotificationMode, onCloseOverlays, noSidebarSelection }) {
   const location = useLocation();
-
+  const user=getUser();
   const handleItemClick = (itemName) => {
     if (itemName === 'Search') {
       onSearchClick()

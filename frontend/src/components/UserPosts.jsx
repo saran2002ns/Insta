@@ -44,7 +44,7 @@ function UserPosts({ posts, setSelectedPost, setShowPostInfo }) {
               </span>
               <span className="flex items-center">
                 <i className="fa-solid fa-comment mr-2"></i>
-                {post.comments}
+                {Array.isArray(post.comments) ? post.comments.length : post.comments}
               </span>
             </div>
           </div>

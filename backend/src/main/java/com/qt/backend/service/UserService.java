@@ -1,7 +1,6 @@
 package com.qt.backend.service;
 
 import com.qt.backend.dto.UserDto;
-import com.qt.backend.dto.UserNameDto;
 import com.qt.backend.dto.UserPasswordCheckDto;
 import com.qt.backend.dto.UserProfileDto;
 import com.qt.backend.model.User;
@@ -29,18 +28,25 @@ public class UserService {
         userProfileDto.setIsFollowed(followsRepository.findAnyFollowByUserIdAndFollowingId(userId, userId2));
         else
         userProfileDto.setIsFollowed(true);
-
-        userProfileDto.setTotalPosts(postRepository.countPostsByUserId(userId));
-        userProfileDto.setTotalFollowers(followsRepository.countFollowersByUserId(userId));
-        userProfileDto.setTotalFollowing(followsRepository.countFollowingByUserId(userId));
+        userProfileDto.setPosts(postRepository.countPostsByUserId(userId));
+        userProfileDto.setFollowers(followsRepository.countFollowersByUserId(userId));
+        userProfileDto.setFollowing(followsRepository.countFollowingByUserId(userId));
         return userProfileDto;
        
     }
 
-    public boolean checkPassword(UserPasswordCheckDto userPasswordCheckDto) {
+    public UserDto checkPassword(UserPasswordCheckDto userPasswordCheckDto) {
 
-        User user = userRepository.findByUserId(userPasswordCheckDto.getUserId());
-        return user.getPassword().equals(userPasswordCheckDto.getPassword());
+        UserDto user = userRepository.findByUserIdAndPassword(userPasswordCheckDto.getUserId(), userPasswordCheckDto.getPassword());
+        if(user == null)
+            return null;
+        else{
+            user.setIsFollowed(true);
+            user.setPosts(postRepository.countPostsByUserId(user.getUserId()));
+            user.setFollowers(followsRepository.countFollowersByUserId(user.getUserId()));
+            user.setFollowing(followsRepository.countFollowingByUserId(user.getUserId()));
+        }
+        return user;
 
     }
 
@@ -48,6 +54,12 @@ public class UserService {
 
     public List<UserDto> getUserSuggestions(String userId) {
         List<UserDto> users = userRepository.findUsersNotFollowedBy(userId, PageRequest.of(0, 10));
+        for(UserDto user:users){
+            user.setIsFollowed(followsRepository.findAnyFollowByUserIdAndFollowingId(userId, user.getUserId()));
+            user.setPosts(postRepository.countPostsByUserId(user.getUserId()));
+            user.setFollowers(followsRepository.countFollowersByUserId(user.getUserId()));
+            user.setFollowing(followsRepository.countFollowingByUserId(user.getUserId()));
+        }
         return users;
     }
 

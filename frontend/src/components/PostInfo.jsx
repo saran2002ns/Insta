@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { commentData,likeData } from '../service/DB';
-import { user ,getComments ,getLikes } from '../service/Api';
+import { getUser ,getComments ,getLikes ,setLike,setUnlike,setSave,setUnsave ,setComment} from '../service/Api';
+import { useNavigate } from 'react-router-dom';
 export default function PostInfo({ imageUrls, onClose, post }) {
+  const navigate = useNavigate();
+  const user=getUser();
   if (!post) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex justify-center items-center">
@@ -19,7 +22,6 @@ export default function PostInfo({ imageUrls, onClose, post }) {
   const [likes, setLikes] = useState(post.likes || 0);
   const [saved, setSaved] = useState(post.saved || false);
   const [commentInput, setCommentInput] = useState("");
-  // const [comments, setComments] = useState(post.comments || 0);
   const [commentList, setCommentList] = useState([]);
   const [likeList, setLikeList] = useState([]);
   const [showLikes, setShowLikes] = useState(false);
@@ -34,10 +36,12 @@ export default function PostInfo({ imageUrls, onClose, post }) {
   }, [post.postId]);
 
   const handleLike = () => {
+    liked?setUnlike(post.postId):setLike(post.postId);
     setLiked((prev) => !prev);
     setLikes((prev) => (liked ? prev - 1 : prev + 1));
   };
-  const handleSave = () => {
+  const handleSave = () => { 
+    saved?setUnsave(post.postId):setSave(post.postId);
     setSaved((prev) => !prev);
   };
 
@@ -45,6 +49,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
     e.preventDefault();
     if (commentInput.trim() === "") return;
     // For demo, use a mock user for the new comment
+    setComment(post.postId,commentInput.trim());
     const newComment = {
       commentId: Date.now(),
       commentText: commentInput.trim(),
@@ -58,7 +63,20 @@ export default function PostInfo({ imageUrls, onClose, post }) {
  
   const handleShowLikes = () => setShowLikes(true);
   const handleShowComments = () => setShowLikes(false);
- 
+
+  const userClickHandler = (userId,user) => {
+    if (window.location.pathname === `/user/${userId}`) {
+      navigate('/', { replace: true });
+      setTimeout(() => {
+        navigate(`/user/${userId}`, { replace: true, state: { user } });
+        window.dispatchEvent(new Event('forceSidebarReset'));
+        if (props.onCloseOverlays) props.onCloseOverlays();
+      }, 0);
+    } else {
+      navigate(`/user/${userId}`, { state: { user } });
+      if (props.onCloseOverlays) props.onCloseOverlays();
+    }
+  }
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex justify-center items-center">
       {/* Overlay Box */}
@@ -110,13 +128,17 @@ export default function PostInfo({ imageUrls, onClose, post }) {
         <div className="w-[400px] flex flex-col border-l border-gray-200 bg-white">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 " >
               <img
                 src={post.user.profilePicture || 'https://randomuser.me/api/portraits/men/75.jpg'}
-                className="w-8 h-8 rounded-full"
+                className="w-8 h-8 rounded-full cursor-pointer"
+                onClick={() => userClickHandler(post.user.userId,post.user)}
                 alt="user"
               />
-              <span className="font-semibold">{post.user.userId || 'Unknown User'}</span>
+              <span className="font-semibold cursor-pointer"
+                    onClick={() => userClickHandler(post.user.userId,post.user)}>
+                      {post.user.userId || 'Unknown User'}
+              </span>
             </div>
             <button onClick={onClose}>
               <X className="w-6 h-6" />

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUsers } from '../service/DB';
-import { setUserId } from '../service/Api';
+import { login} from '../service/Api';
 
 const Login = () => {
   const [userIdName, setUserIdName] = useState('');
@@ -14,26 +13,11 @@ const Login = () => {
     if (e) e.preventDefault();
     setError('');
     setLoading(true);
-    // Simulate network delay
-    await new Promise((res) => setTimeout(res, 1200));
-    if (!userIdName || !password) {
-      setError('Please enter both fields');
-      setLoading(false);
-      return;
-    }
-    // Check credentials from DB
-    const foundUser = loginUsers.find(
-      (user) => user.userIdName === userIdName && user.password === password
-    );
-    if (foundUser) {
-      localStorage.setItem('user', JSON.stringify(foundUser));
-      // userId=foundUser.userId;
-      setUserId('u001');
-      setLoading(false);
+    const data=await login(userIdName,password);
+    if(data){
+      console.log('user logged in',data);
+      localStorage.setItem('user', JSON.stringify(data));
       navigate('/');
-    } else {
-      setError('Invalid credentials');
-      setLoading(false);
     }
   };
 
@@ -97,14 +81,14 @@ const Login = () => {
             className="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-2 rounded-lg shadow text-sm transition-all duration-150"
             disabled={loading}
           >
-            Quick Login: Chitti
+            Quick Login: mira_lennox
           </button>
           <button
-            onClick={() => quickLogin('ra_one', 'raone123')}
+            onClick={() => quickLogin('lisa_moon', 'LisaMoon$22')}
             className="flex-1 bg-purple-100 hover:bg-purple-200 text-purple-700 font-semibold py-2 rounded-lg shadow text-sm transition-all duration-150"
             disabled={loading}
           >
-            Quick Login: Ra One
+            Quick Login: lisa_moon
           </button>
         </div>
         {/* Sample users for quick login */}

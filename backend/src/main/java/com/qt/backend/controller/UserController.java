@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.qt.backend.dto.UserDto;
 import com.qt.backend.dto.UserPasswordCheckDto;
 import com.qt.backend.dto.UserProfileDto;
-
 import com.qt.backend.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -48,8 +47,13 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public boolean checkPassword(@RequestBody UserPasswordCheckDto userPasswordCheckDto) {
-        return userService.checkPassword(userPasswordCheckDto);
+    public ResponseEntity<?> checkPassword(@RequestBody UserPasswordCheckDto userPasswordCheckDto) {
+        UserDto user = userService.checkPassword(userPasswordCheckDto);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.status(401).body("Invalid password");
+        }
     }
 
 }

@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { user as loggedInUser ,getPosts,getSaves,getTags} from '../service/Api';
+import { getUser ,getPosts,getSaves,getTags,getFollowers,getFollowing ,setFollow,setUnfollow} from '../service/Api';
 import PostInfo from './PostInfo';
 import UserPosts from './UserPosts';
+import { useNavigate } from 'react-router-dom';
 
 
-function Profile() {
+function Profile(props) {
+  const loggedInUser=getUser();
+  const navigate = useNavigate();
   const { userId } = useParams();
   const location = useLocation();
   const [user, setUser] = useState( null);
@@ -16,94 +19,124 @@ function Profile() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [isNoFollowPrivateProfile, setIsNoFollowPrivateProfile] = useState(false);
-  const [followRequests, setFollowRequests] = useState({});
   const [imagePosts, setImagePosts] = useState([]);
   const [videoPosts, setVideoPosts] = useState([]);
   const [savedPosts, setSavedPosts] = useState([]);
   const [taggedPosts, setTaggedPosts] = useState([]);
+  const [requested, setRequested] = useState(false);
+  const [followed, setFollowed] = useState(false);
+  const [showFollowModal, setShowFollowModal] = useState(false);
+  const [followTab, setFollowTab] = useState('followers');
+  const [followersList, setFollowersList] = useState([]);
+  const [followingList, setFollowingList] = useState([]);
+
+  // Fetch followers/following when modal opens (load both at once)
+  useEffect(() => {
+    if (!showFollowModal || !user) return;
+    getFollowers(user.userId).then(data => setFollowersList(data)).catch(() => setFollowersList([]));
+    getFollowing(user.userId).then(data => setFollowingList(data)).catch(() => setFollowingList([]));
+  }, [showFollowModal, user]);
  
   useEffect(() => {
     let foundUser = location.state?.user;
     setUser(foundUser);
     setLoading(true);
-    const fetchUserId = foundUser?.userId || userId;
-   
+    if (!foundUser) return;
+    const fetchUserId = foundUser.userId || userId;
+
     setShowPostInfo(false);
     setSelectedPost(null);
-    setIsOwnProfile(loggedInUser && userId === loggedInUser.userId);
-    setIsNoFollowPrivateProfile(!isOwnProfile && !foundUser?.followed && foundUser?.private);
-    if(!isNoFollowPrivateProfile){
-    getPosts(fetchUserId).then(data => {
-      setUserPosts(data);
+    const ownProfile = loggedInUser && userId === loggedInUser.userId;
+    setIsOwnProfile(ownProfile);
+    const noFollowPrivate = !ownProfile && !foundUser?.followed && foundUser?.private;
+    setIsNoFollowPrivateProfile(noFollowPrivate);
+    setFollowed(foundUser?.followed || false);
+    setRequested(false);
+    if(ownProfile){
+      setUser(loggedInUser);
+    }
+
+    if(!noFollowPrivate){
+      getPosts(fetchUserId).then(data => {
+        setUserPosts(data);
+        setLoading(false);
+        handlePosts(data); // Call handlePosts with data
+      }).catch(() => {
+        setUserPosts([]); // fallback to empty or you can import postData if you want
+        setLoading(false);
+        handlePosts([]); // Call handlePosts with empty
+      });
+    }else{
+      setUserPosts([]);
       setLoading(false);
-    }).catch(() => {
-      setUserPosts([]); // fallback to empty or you can import postData if you want
-      setLoading(false);
-    });
-  }else{
-    setUserPosts([]);
-    setLoading(false);
-  }
+      handlePosts([]); // Call handlePosts with empty
+    }
   }, [userId, location.state]);
 
   useEffect(() => {
-   handlePosts();
+    handlePosts();
+    if (!user || isNoFollowPrivateProfile) {
+      setSavedPosts([]);
+      setTaggedPosts([]);
+      setLoading(false);
+      return;
+    }
+    getSaves().then(data => setSavedPosts(data)).catch(() => setSavedPosts(postData));
+    getTags(user.userId).then(data => setTaggedPosts(data)).catch(() => setTaggedPosts(postData));
   }, [userPosts]);
 
+  // Update handlers to accept optional data
+  const handlePosts = () => {
+    const source =  userPosts;
+    setImagePosts(source.filter(post => post.mediaType === 'image'));
+    setSelectedTab('posts');
+  };
+  const handleReels = () => {
+    const source =  userPosts;
+    setVideoPosts(source.filter(post => post.mediaType === 'video'));
+    setSelectedTab('reels');
+  };
+  const handleSaved = () => {
+    setSelectedTab('saved');
+   
+  };
+  const handleTag = () => {
+    setSelectedTab('tagged');
+    // No-op, handled in useEffect
+  };
 
-
+  // Re-add handleFollow function
   const handleFollow = () => {
-    if (followRequests[user.userId]) {
-      setFollowRequests(prev => {
-        const updated = { ...prev };
-        delete updated[user.userId];
-        return updated;
-      });
-    } else if (user.followed) {
-      setUser(prev => ({ ...prev, followed: false }));
-    } else if (user.private) {
-      setFollowRequests(prev => ({ ...prev, [user.userId]: true }));
+    if (requested) {
+      setRequested(false); // Cancel follow request
+    } else if (followed) {
+      setFollowed(false); // Unfollow
+      setUnfollow(user.userId);
+    } else if (user?.private) {
+      setRequested(true); // Send follow request
     } else {
-      setUser(prev => ({ ...prev, followed: true }));
+      setFollowed(true); // Follow public
+      setFollow(user.userId);
     }
   };
-  const handlePosts =()=>{
-    setImagePosts(userPosts.filter(post => post.mediaType === 'image'));
-    setSelectedTab('posts');
-  }
-  const handleReels =()=>{
-    setVideoPosts(userPosts.filter(post => post.mediaType === 'video'));
-    setSelectedTab('reels');
-  }
-  const handleSaved =()=>{
-    if(!isNoFollowPrivateProfile){
-    getSaves().then(data =>{ 
-      setSavedPosts(data);
-    }).catch(()=>{
-      setSavedPosts(postData);
-    });
-  }else{
-    setSavedPosts([]);
-    setLoading(false);
-  }
-  setSelectedTab('saved')
-
-  }
-  const handleTag =()=>{
-    if(!isNoFollowPrivateProfile){
-    getTags(user.userId).then(data =>{ 
-      setTaggedPosts(data);
-    }).catch(()=>{
-      setTaggedPosts(postData);
-    });
-  }else{
-    setTaggedPosts([]);
-    setLoading(false);
-  }
-  setSelectedTab('tagged')
-  }
 
   if (!user) return <div className="p-8">User not found.</div>;
+
+
+
+  const userClickHandler = (userId,user) => {
+    if (window.location.pathname === `/user/${userId}`) {
+      navigate('/', { replace: true });
+      setTimeout(() => {
+        navigate(`/user/${userId}`, { replace: true, state: { user } });
+        window.dispatchEvent(new Event('forceSidebarReset'));
+        if (props.onCloseOverlays) props.onCloseOverlays();
+      }, 0);
+    } else {
+      navigate(`/user/${userId}`, { state: { user } });
+      if (props.onCloseOverlays) props.onCloseOverlays();
+    }
+  }
   
   
   return (
@@ -114,6 +147,50 @@ function Profile() {
           imageUrls={[selectedPost.image || selectedPost.imageUrl]}
           onClose={() => setShowPostInfo(false)}
         />
+      )}
+      {/* Modal for Followers/Following */}
+      {showFollowModal && !isNoFollowPrivateProfile && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-96 max-h-[80vh] flex flex-col">
+            <div className="flex justify-between items-center border-b p-4">
+              <div className="flex space-x-4">
+                <button
+                  className={`font-semibold ${followTab === 'followers' ? 'text-black border-b-2 border-black' : 'text-gray-400'}`}
+                  onClick={() => setFollowTab('followers')}
+                >
+                  Followers
+                </button>
+                <button
+                  className={`font-semibold ${followTab === 'following' ? 'text-black border-b-2 border-black' : 'text-gray-400'}`}
+                  onClick={() => setFollowTab('following')}
+                >
+                  Following
+                </button>
+              </div>
+              <button onClick={() => setShowFollowModal(false)}>
+                <i className="fa-solid fa-xmark text-xl"></i>
+              </button>
+            </div>
+            <div className="overflow-y-auto p-4">
+              {(followTab === 'followers' ? followersList : followingList).map((u) => (
+                <div key={u.userId} className="flex items-center mb-2 " >
+                  <img src={u.profilePicture} alt={u.userId} className="w-8 h-8 rounded-full mr-3 " onClick={() => userClickHandler(u.userId,u)}/>
+                  <div className='flex flex-col'>
+                    <span className='cursor-pointer' onClick={() => userClickHandler(u.userId,u)}>{u.username}</span>
+                    <span className="text-xs text-gray-500 cursor-pointer" onClick={() => userClickHandler(u.userId,u)}>{u.userId}</span>
+                  </div>
+                  {u.followed ? (
+                    <span className="ml-4 text-xs text-gray-400 cursor-pointer" onClick={() => userClickHandler(u.userId,u)}>Following</span>
+                  ) : (
+                    <span className="ml-4 text-xs text-gray-400 cursor-pointer" onClick={() => userClickHandler(u.userId,u)}>Follow</span>
+                  )}
+                  <div className="flex-1" />
+                  <button className="ml-2 text-xs text-gray-700 bg-gray-200 rounded px-2 py-1 hover:bg-gray-300">Remove</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
       <div className="max-w-full p-6 font-sans">
         {/* Profile Header */}
@@ -126,17 +203,17 @@ function Profile() {
               {!isOwnProfile && (
                 <button
                   className={`px-4 py-1 ml-4 rounded text-sm border font-semibold transition-colors duration-150 ${
-                    followRequests[user.userId]
+                    requested
                       ? 'bg-transparent text-gray-500 border-gray-300'
-                      : user.followed
+                      : followed
                         ? 'bg-transparent text-gray-500 border-gray-300'
                         : 'bg-transparent text-blue-400 border-gray-300'
                   }`}
                   onClick={handleFollow}
                 >
-                  {followRequests[user.userId]
+                  {requested
                     ? 'Requested'
-                    : user.followed
+                    : followed
                       ? 'Following'
                       : 'Follow'}
                 </button>
@@ -146,20 +223,20 @@ function Profile() {
               )}
             </div>
             <div className="flex gap-8 mb-2">
-              <span><b>{user.totalPosts}</b> posts</span>
-              <span><b>{user.totalFollowers}</b> followers</span>
-              <span><b>{user.totalFollowing}</b> following</span>
+              <span><b>{user.posts}</b> posts</span>
+              <span style={{cursor: 'pointer'}} onClick={() => { if (user && !isNoFollowPrivateProfile) { setShowFollowModal(true); setFollowTab('followers'); } }}><b>{user.followers}</b> followers</span>
+              <span style={{cursor: 'pointer'}} onClick={() => { if (user && !isNoFollowPrivateProfile) { setShowFollowModal(true); setFollowTab('following'); } }}><b>{user.following}</b> following</span>
             </div>
-            {!isNoFollowPrivateProfile && (
+          
               <div className="text-sm">
                 <div className="font-semibold">{user.username}</div>
                 <div>@{user.userId}</div>
-                <div>{user.bio}</div>
+                {!isNoFollowPrivateProfile && <div>{user.bio}</div>}
                 {/* {user.website && (
                   <a href={user.websiteUrl} className="text-blue-500 hover:underline block" target="_blank" rel="noopener noreferrer">{user.websiteUrl}</a>
                 )} */}
               </div>
-            )}
+            
           </div>
         </div>
 

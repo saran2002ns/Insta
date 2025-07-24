@@ -12,9 +12,9 @@ public class UserProfileDto {
     private String bio;
     private boolean isPrivate;
     private boolean isFollowed;
-    private Long totalPosts;
-    private Long totalFollowers;
-    private Long totalFollowing;
+    private Long posts;
+    private Long followers;
+    private Long following;
 
     public UserProfileDto(String userId, String profilePicture, String username, String bio, boolean isPrivate){
         this.userId = userId;

@@ -19,12 +19,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         //                 "FROM Post p WHERE p.postId = :postId")
         // PostDto findPostDtoById(@Param("postId") Long postId);
 
-        @Query("SELECT new com.qt.backend.dto.PostDto(p.postId, p.mediaUrl, p.mediaType, p.caption, p.createdAt, p.user.userId, p.user.profilePicture, p.user.username, p.user.isPrivate) "
+        @Query("SELECT new com.qt.backend.dto.PostDto(p.postId, p.mediaUrl, p.mediaType, p.caption, p.createdAt, p.user.userId, p.user.profilePicture, p.user.username, p.user.bio, p.user.isPrivate) "
                         +
                         "FROM Post p WHERE p.user.userId = :userId")
         List<PostDto> findPostsByUserId(@Param("userId") String userId);
 
-        @Query("SELECT new com.qt.backend.dto.PostDto(p.postId, p.mediaUrl, p.mediaType, p.caption, p.createdAt, p.user.userId, p.user.profilePicture, p.user.username, p.user.isPrivate) "
+        @Query("SELECT new com.qt.backend.dto.PostDto(p.postId, p.mediaUrl, p.mediaType, p.caption, p.createdAt, p.user.userId, p.user.profilePicture, p.user.username, p.user.bio, p.user.isPrivate) "
                         +
                         "FROM Post p " +
                         "WHERE (p.user.userId IN :followingIds OR p.user.isPrivate = false) " +
@@ -33,7 +33,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         List<PostDto> findFeedPostsForUser(@Param("userId") String userId,
                         @Param("followingIds") HashSet<String> followingIds, Pageable pageable);
 
-        @Query("SELECT new com.qt.backend.dto.PostDto(p.postId, p.mediaUrl, p.mediaType, p.caption, p.createdAt, p.user.userId, p.user.profilePicture, p.user.username, p.user.isPrivate) "
+        @Query("SELECT new com.qt.backend.dto.PostDto(p.postId, p.mediaUrl, p.mediaType, p.caption, p.createdAt, p.user.userId, p.user.profilePicture, p.user.username, p.user.bio, p.user.isPrivate) "
                         +
                         "FROM Post p " +
                         "WHERE (p.user.userId IN :followingIds OR p.user.isPrivate = false) " +
@@ -42,7 +42,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         List<PostDto> findReelsPostsForUser(@Param("userId") String userId,
                         @Param("followingIds") HashSet<String> followingIds, Pageable pageable);
                         
-        @Query("SELECT new com.qt.backend.dto.PostDto(p.postId, p.mediaUrl, p.mediaType, p.caption, p.createdAt, p.user.userId, p.user.profilePicture, p.user.username, p.user.isPrivate) "
+        @Query("SELECT new com.qt.backend.dto.PostDto(p.postId, p.mediaUrl, p.mediaType, p.caption, p.createdAt, p.user.userId, p.user.profilePicture, p.user.username, p.user.bio, p.user.isPrivate) "
                         +
                         "FROM Post p WHERE p.postId = :postId")
         PostDto findPostDtoById(Long postId);

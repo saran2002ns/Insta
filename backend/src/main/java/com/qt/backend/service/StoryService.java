@@ -1,12 +1,9 @@
 package com.qt.backend.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
 
 import com.qt.backend.dto.StoryDto;
-import com.qt.backend.dto.UserDto;
 import com.qt.backend.repo.FollowsRepository;
 import com.qt.backend.repo.StoryRepository;
 
@@ -19,16 +16,8 @@ public class StoryService {
     private final FollowsRepository followsRepository;
 
     public List<StoryDto> getStoryByUserId(String viewerId) {
-        List<UserDto> followers = followsRepository.findFollowersByUserId(viewerId);
-        List<String> userIds = followers.stream()
-                                        .map(UserDto::getUserId)
-                                        .collect(Collectors.toList());
-    
-        // Include own story too
+        List<String> userIds = followsRepository.findFollowingNamesByUserId(viewerId);
         userIds.add(viewerId);
         return storyRepository.findByUserIdInWithViewStatus(userIds, viewerId);
     }
-    
-    
-
 }

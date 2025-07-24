@@ -1,6 +1,5 @@
 package com.qt.backend.repo;
 
-import com.qt.backend.dto.TagDto;
 
 import com.qt.backend.model.Tag;
 
@@ -13,7 +12,7 @@ import com.qt.backend.dto.PostDto;
 
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
-    @Query("SELECT new com.qt.backend.dto.PostDto(t.post.postId, t.post.mediaUrl, t.post.mediaType, t.post.caption, t.post.createdAt, t.post.user.userId, t.post.user.profilePicture, t.post.user.username, t.post.user.isPrivate) "
+    @Query("SELECT new com.qt.backend.dto.PostDto(t.post.postId, t.post.mediaUrl, t.post.mediaType, t.post.caption, t.post.createdAt, t.post.user.userId, t.post.user.profilePicture, t.post.user.username, t.post.user.bio, t.post.user.isPrivate) "
                             +
                         "FROM Tag t " +
                         "WHERE t.user.userId = :userId")

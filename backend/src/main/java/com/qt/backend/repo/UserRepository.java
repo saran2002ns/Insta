@@ -17,6 +17,11 @@ public interface UserRepository extends JpaRepository<User, String> {
 
    
 
-    @Query("SELECT new com.qt.backend.dto.UserDto(u.userId, u.profilePicture, u.username, u.isPrivate, false) FROM User u WHERE u.userId != :userId AND u.userId NOT IN (SELECT f.following.userId FROM Follows f WHERE f.follower.userId = :userId)")
+    @Query("SELECT new com.qt.backend.dto.UserDto(u.userId, u.profilePicture, u.username, u.bio, u.isPrivate, false) FROM User u WHERE u.userId != :userId AND u.userId NOT IN (SELECT f.following.userId FROM Follows f WHERE f.follower.userId = :userId)")
     List<UserDto> findUsersNotFollowedBy(@Param("userId") String userId, Pageable pageable);
+
+
+
+    @Query("SELECT new com.qt.backend.dto.UserDto(u.userId, u.profilePicture, u.username, u.bio, u.isPrivate, false) FROM User u WHERE u.userId = :userId AND u.password = :password")
+    UserDto findByUserIdAndPassword(@Param("userId") String userId, @Param("password") String password);
 }

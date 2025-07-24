@@ -21,13 +21,13 @@ public class PostDto {
     private UserDto user;
    
 
-    public PostDto(Long postId, String mediaUrl, String mediaType, String caption, java.time.LocalDateTime createdAt, String userId, String profilePicture, String username, boolean isPrivate) {
+    public PostDto(Long postId, String mediaUrl, String mediaType, String caption, java.time.LocalDateTime createdAt, String userId, String profilePicture, String username,String bio, boolean isPrivate) {
         this.postId = postId;
         this.mediaUrl = mediaUrl;
         this.mediaType = mediaType;
         this.caption = caption;
         this.createdAt = createdAt;
-        this.user = new UserDto(userId,profilePicture,username,isPrivate);
+        this.user = new UserDto(userId,profilePicture,username,bio,isPrivate);
     }
 
     public void setIsLiked(boolean isLiked) {

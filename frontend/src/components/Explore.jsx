@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaPlayCircle } from "react-icons/fa";
 import PostInfo from './PostInfo';
 import { getFeeds } from '../service/Api';
@@ -12,17 +12,49 @@ function chunkArray(array, size) {
 }
 
 export default function Explore() {
+  const [page, setPage] = useState(0);
   const [showPostInfo, setShowPostInfo] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [postChunks, setPostChunks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const isFetching = useRef(false);
+
   useEffect(() => {
+    fetchPosts(page);
+    // eslint-disable-next-line
+  }, [page]);
+
+  const fetchPosts = async (pageNum) => {
+    if (isFetching.current) return;
+    isFetching.current = true;
     setLoading(true);
-    getFeeds().then(data => {
-      setPostChunks(chunkArray(data, 5));
+    try {
+      const data = await getFeeds(pageNum);
+      if (data.length === 0) {
+        setHasMore(false);
+      } else {
+        setPostChunks(prev => [...prev, ...chunkArray(data, 5)]);
+      }
+    } finally {
       setLoading(false);
-    });
-  }, []);
+      isFetching.current = false;
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
+        !loading &&
+        hasMore
+      ) {
+        setPage(prev => prev + 1);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loading, hasMore]);
 
   const renderPost = (item, style = {}) => (
     <div
@@ -136,6 +168,12 @@ export default function Explore() {
           </div>
         ))
       )}
+      {loading && (
+        <div className="flex justify-center py-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      )}
+      {!hasMore && <div className="text-center py-4 text-gray-400">No more posts</div>}
     </div>
   </>);
 }
