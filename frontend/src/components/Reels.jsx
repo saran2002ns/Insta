@@ -5,7 +5,7 @@ import { FaVolumeMute, FaPlay } from "react-icons/fa";
 import { MdLocationPin } from "react-icons/md";
 import { useSwipeable } from 'react-swipeable';
 import PostInfo from './PostInfo';
-import { getReels,setLike,setUnlike,setSave,setUnsave ,setFollow,setUnfollow} from '../service/Api';
+import { getReels,setLike,setUnlike,setSave,setUnsave ,setFollow,setUnfollow,getUser} from '../service/Api';
 
 const INITIAL_LOAD = 10;
 const LOAD_MORE = 10;
@@ -17,14 +17,27 @@ function ReelInfo({ reel, onUserClick, onCommentClick,  muted, toggleMute, isPla
   const [saved, setSaved] = useState(reel.saved || false);
   const [requested, setRequested] = useState(false);
   const [followed, setFollowed] = useState(reel.user.followed || false);
-
+  const [user, setUser] = useState(reel.user);
+  const loggedUser=getUser();
   const handleLike = () => {
-    liked?setUnlike(reel.postId):setLike(reel.postId);
+    if (!liked) {
+      setLike(reel.postId);
+      setLikes((prev) => prev + 1);
+      reel.liked=true;
+      reel.likes=likes+1;
+     
+    } else {
+      setUnlike(reel.postId);
+      setLikes((prev) => prev - 1);
+     
+      reel.liked=false;
+      reel.likes=likes-1;
+    }
     setLiked((prev) => !prev);
-    setLikes((prev) => (liked ? prev - 1 : prev + 1));
   };
   const handleSave = () => {
     saved?setUnsave(reel.postId):setSave(reel.postId);
+    saved?reel.saved=false:reel.saved=true;
     setSaved((prev) => !prev);
   };
   const handleFollowClick = (e) => {
@@ -33,12 +46,18 @@ function ReelInfo({ reel, onUserClick, onCommentClick,  muted, toggleMute, isPla
       setRequested(false); // Cancel follow request
     } else if (followed) {
       setFollowed(false); // Unfollow
-      setUnfollow(reel.user.userId);
+      setUnfollow(user.userId);
+      loggedUser.following=loggedUser.following-1;
+      user.followed=false;
+      user.followers=user.followers-1;
     } else if (reel.user.private) {
       setRequested(true); // Send follow request
     } else {
       setFollowed(true); // Follow public
-      setFollow(reel.user.userId);
+      setFollow(user.userId);
+      loggedUser.following=loggedUser.following+1;
+      user.followed=true;
+      user.followers=user.followers+1;
     }
   };
 

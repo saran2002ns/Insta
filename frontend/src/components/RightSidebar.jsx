@@ -3,7 +3,7 @@ import { getSuggections,setFollow,setUnfollow } from '../service/Api';
 import { getUser } from '../service/Api';
 import { useNavigate } from 'react-router-dom';
 
-function SuggestionUser({ user, onUserClick }) {
+function SuggestionUser({ user, loggedUser, onUserClick }) {
   const [requested, setRequested] = useState(false);
   const [followed, setFollowed] = useState(user.followed || false);
 
@@ -14,11 +14,17 @@ function SuggestionUser({ user, onUserClick }) {
     } else if (followed) {
       setFollowed(false); // Unfollow
       setUnfollow(user.userId);
+      loggedUser.following=loggedUser.following-1;
+      user.followed=false;
+      user.followers=user.followers-1;
     } else if (user.private) {
       setRequested(true); // Send follow request
     } else {
       setFollowed(true); // Follow public
       setFollow(user.userId);
+      loggedUser.following=loggedUser.following+1;
+      user.followed=true;
+      user.followers=user.followers+1;
     }
   };
 
@@ -114,8 +120,8 @@ export default function RightSidebar() {
               </div>
             ))
           ) : (
-            suggestedUsers.slice(1, 6).map((user) => (
-              <SuggestionUser key={user.userId} user={user} onUserClick={handleUserClick} />
+            suggestedUsers.slice(1, 6).map((u) => (
+              <SuggestionUser key={u.userId} user={u} loggedUser={user} onUserClick={handleUserClick} />
             ))
           )}
         </div>  

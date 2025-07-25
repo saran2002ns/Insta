@@ -32,7 +32,7 @@ public class UserController {
             UserProfileDto user = userService.getUserById(userId,loggedInUserId);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
         }
     }
 
@@ -42,7 +42,7 @@ public class UserController {
             List<UserDto> suggestions = userService.getUserSuggestions(userId);
             return ResponseEntity.ok(suggestions);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
         }
     }
 
@@ -52,7 +52,7 @@ public class UserController {
         if (user != null) {
             return ResponseEntity.ok(user);
         } else {
-            return ResponseEntity.status(401).body("Invalid password");
+            return ResponseEntity.status(401).body(java.util.Map.of("error", "invalid post"));
         }
     }
 

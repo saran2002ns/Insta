@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { getStories } from '../service/Api';
 import { stories as storiesDB } from '../service/DB';
+import { viewStory } from '../service/Api';
+import { getUser } from '../service/Api';
 import StoryModal from './StoryModal';
 
 export default function StoryBar() {
@@ -13,17 +15,27 @@ export default function StoryBar() {
   const [storyModalOpen, setStoryModalOpen] = useState(false);
   const [storyModalIndex, setStoryModalIndex] = useState(0);
   const [sortedStoriesForModal, setSortedStoriesForModal] = useState([]);
+  const [userStory, setUserStory] = useState(null);
+  const loggedInUser = getUser();
 
   useEffect(() => {
     setLoading(true);
     getStories().then(data => {
-      setStories(data);
+      const userStory = data.find(story => story.userId === loggedInUser.userId)
+      setUserStory(userStory ? {
+        ...userStory,
+        mediaType: userStory.storyType || 'video',
+        _originalIndex: 0,
+      } : null);
+      setStories(userStory ? data.filter(story => story.userId !== loggedInUser.userId) : data);
       setLoading(false);
     }).catch(() => {
       setStories(storiesDB);
       setLoading(false);
     });
   }, []);
+
+  // const loggedInUser = getUser();
 
   // Helper to get sorted stories as displayed
   const getSortedStories = () => {
@@ -60,6 +72,7 @@ export default function StoryBar() {
       if (prev[originalIndex]?.viewed) return prev;
       const updated = [...prev];
       updated[originalIndex] = { ...updated[originalIndex], viewed: true };
+      viewStory(updated[originalIndex].storyId);
       return updated;
     });
     setSortedStoriesForModal((prev) => {
@@ -68,6 +81,16 @@ export default function StoryBar() {
         story._originalIndex === originalIndex ? { ...story, viewed: true } : story
       );
     });
+   
+  };
+  const setUserStoryViewed=() => {
+    if (userStory && !userStory.viewed) {
+    viewStory(userStory.storyId);
+    setUserStory((prev) => {
+      if (!prev) return prev;
+      return { ...prev, viewed: true };
+    });
+    }
   };
 
   return (
@@ -86,6 +109,42 @@ export default function StoryBar() {
           ref={scrollRef}
           className="flex items-center h-full overflow-x-auto scroll-smooth no-scrollbar pl-4 space-x-9 w-full"
         >
+          {/* Your Story (first item) */}
+          {!loading &&
+           <div className="flex flex-col justify-center items-center min-w-[50px]">
+            <div className="relative w-20 h-20 mb-1 flex items-center justify-center">
+              <div
+                className={`p-[3px] w-20 h-20 rounded-full overflow-hidden flex items-center justify-center ${userStory ? (userStory.viewed ? 'border-2 border-white bg-slate-200' : 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600') : 'bg-gradient-to-tr from-blue-400 to-blue-600'} cursor-pointer group`}
+                onClick={() => {
+                  if (userStory) {
+                    setStoryModalOpen(true);
+                    setStoryModalIndex(0); // Always first
+                    setSortedStoriesForModal([userStory]);
+                  } else {
+                    alert('Open add/update story modal');
+                  }
+                }}
+              >
+                <img
+                  src={userStory ? userStory.profilePicture : loggedInUser.profilePicture}
+                  alt={loggedInUser.userId}
+                  className="object-cover w-full h-full rounded-full border-2 border-white"
+                />
+              </div>
+              {/* Blue plus icon overlay always visible, clickable for add/update */}
+              <span
+                className="absolute bottom-1 right-1 bg-white border-1 border-white text-blue-500 rounded-full w-6 h-6 flex items-center justify-center text-xl z-10 shadow"
+                onClick={e => {
+                  e.stopPropagation();
+                  alert('Open add/update story modal');
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <i className="bi bi-plus-circle-fill"></i>
+              </span>
+            </div>
+            <span className="text-xs text-center max-w-[60px] truncate">Your Story</span>
+          </div> }
           {loading ? (
             Array.from({ length: 5 }).map((_, index) => (
               <div key={`loading-${index}`} className="flex flex-col justify-center items-center min-w-[50px]">
@@ -95,7 +154,8 @@ export default function StoryBar() {
                 <div className="w-12 h-3 bg-gray-200 rounded animate-pulse"></div>
               </div>
             ))
-          ) : stories.length > 0 ? (
+          ) : 
+          stories.length > 0 ? (
             getSortedStories().map((story, index) => (
               <div
                 key={`${story.storyId}-${story._originalIndex}`}
@@ -141,6 +201,7 @@ export default function StoryBar() {
           initialIndex={storyModalIndex}
           onClose={() => setStoryModalOpen(false)}
           onStoryViewed={handleStoryViewed}
+          setUserStoryViewed={setUserStoryViewed}
         />
       )}
     </>

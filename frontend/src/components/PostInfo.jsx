@@ -36,12 +36,27 @@ export default function PostInfo({ imageUrls, onClose, post }) {
   }, [post.postId]);
 
   const handleLike = () => {
-    liked?setUnlike(post.postId):setLike(post.postId);
+    
+    if (!liked) {
+      setLike(post.postId);
+      setLikes((prev) => prev + 1);
+      setLikeList((prev) => [...prev, { user }]);
+      post.liked=true;
+      post.likes=likes+1;
+     
+    } else {
+      setUnlike(post.postId);
+      setLikes((prev) => prev - 1);
+      // Remove user from likeList
+      setLikeList((prev) => prev.filter(like => like.user.userId !== user.userId));
+      post.liked=false;
+      post.likes=likes-1;
+    }
     setLiked((prev) => !prev);
-    setLikes((prev) => (liked ? prev - 1 : prev + 1));
   };
   const handleSave = () => { 
     saved?setUnsave(post.postId):setSave(post.postId);
+    saved?post.saved=false:post.saved=true;
     setSaved((prev) => !prev);
   };
 

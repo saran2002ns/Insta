@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { getUser ,getPosts,getSaves,getTags,getFollowers,getFollowing ,setFollow,setUnfollow} from '../service/Api';
+import { getUser ,getPosts,getSaves,getTags,getFollowers,getFollowing ,setFollow,setUnfollow,removeFollower} from '../service/Api';
 import PostInfo from './PostInfo';
 import UserPosts from './UserPosts';
 import { useNavigate } from 'react-router-dom';
@@ -112,13 +112,40 @@ function Profile(props) {
     } else if (followed) {
       setFollowed(false); // Unfollow
       setUnfollow(user.userId);
+      loggedInUser.following=loggedInUser.following-1;
+      user.followed=false;
+      user.followers=user.followers-1;
     } else if (user?.private) {
       setRequested(true); // Send follow request
     } else {
       setFollowed(true); // Follow public
       setFollow(user.userId);
+      loggedInUser.following=loggedInUser.following+1;
+      user.followed=true;
+      user.followers=user.followers+1;
     }
   };
+
+  const [confirmRemove, setConfirmRemove] = useState(null); // user to remove
+  const removeFollows = (user) => {
+    setConfirmRemove(user);
+  }
+  const handleConfirmRemove = () => {
+    if (!confirmRemove) return;
+    if (followTab === 'following') {
+      setUnfollow(confirmRemove.userId);
+      loggedInUser.following = loggedInUser.following - 1;
+      confirmRemove.followed = false;
+      confirmRemove.followers = confirmRemove.followers - 1;
+      setFollowingList(list => list.filter(u => u.userId !== confirmRemove.userId));
+    } else {
+      removeFollower(confirmRemove.userId, loggedInUser.userId);
+      loggedInUser.followers = loggedInUser.followers - 1;
+      setFollowersList(list => list.filter(u => u.userId !== confirmRemove.userId));
+    }
+    setConfirmRemove(null);
+  }
+  const handleCancelRemove = () => setConfirmRemove(null);
 
   if (!user) return <div className="p-8">User not found.</div>;
 
@@ -185,9 +212,37 @@ function Profile(props) {
                     <span className="ml-4 text-xs text-gray-400 cursor-pointer" onClick={() => userClickHandler(u.userId,u)}>Follow</span>
                   )}
                   <div className="flex-1" />
-                  <button className="ml-2 text-xs text-gray-700 bg-gray-200 rounded px-2 py-1 hover:bg-gray-300">Remove</button>
+                  <button className="ml-2 text-xs text-gray-700 bg-gray-200 rounded px-2 py-1 hover:bg-gray-300" onClick={() => removeFollows(u)}>Remove</button>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Custom Remove Confirmation Modal */}
+      {confirmRemove && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-80 flex flex-col items-center">
+            <div className="text-lg font-semibold mb-4 text-center">
+              {followTab === 'following'
+                ? 'Are you sure you want to unfollow this user?'
+                : 'Are you sure you want to remove this follower?'}
+            </div>
+            <div className="flex space-x-4">
+              <button
+                type="button"
+                className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+                onClick={handleCancelRemove}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600"
+                onClick={handleConfirmRemove}
+              >
+                Confirm
+              </button>
             </div>
           </div>
         </div>
@@ -290,16 +345,16 @@ function Profile(props) {
         ) : (
           <>
             {selectedTab === 'posts' && (
-              <UserPosts posts={imagePosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} />
+              <UserPosts posts={imagePosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} isOwnProfile={isOwnProfile} tab={'posts'}/>
             )}
             {selectedTab === 'reels' && (
-              <UserPosts posts={videoPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} />
+              <UserPosts posts={videoPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} isOwnProfile={isOwnProfile} tab={'reels'}/>
             )}
             {selectedTab === 'saved' && isOwnProfile && (
-              <UserPosts posts={savedPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} />
+              <UserPosts posts={savedPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} isOwnProfile={isOwnProfile} tab={'saved'}/>
             )}
             {selectedTab === 'tagged' && (
-              <UserPosts posts={taggedPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} />
+              <UserPosts posts={taggedPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} isOwnProfile={isOwnProfile} tab={'tagged'}/>
             )}
           </>
         )}

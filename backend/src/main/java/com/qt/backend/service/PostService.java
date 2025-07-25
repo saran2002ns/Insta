@@ -1,6 +1,7 @@
 package com.qt.backend.service;
 
 import com.qt.backend.dto.PostDto;
+import com.qt.backend.model.Post;
 import com.qt.backend.repo.LikeRepository;
 import com.qt.backend.repo.PostRepository;
 import com.qt.backend.repo.CommentRepository;
@@ -103,6 +104,14 @@ public class PostService {
         post.getUser().setFollowers(followsRepository.countFollowersByUserId(post.getUser().getUserId()));
         post.getUser().setFollowing(followsRepository.countFollowingByUserId(post.getUser().getUserId()));
         return post;
+    }
+
+    public void deletePost(Long postId) {
+        Post post =postRepository.getByPostId(postId);
+        if (post == null) {
+            throw new RuntimeException("post not found");
+        }
+        postRepository.delete(post);
     }
 
   

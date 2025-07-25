@@ -33,7 +33,7 @@ public class SaveControler {
             List<PostDto> saves = saveService.getSavedPosts(userId);
             return ResponseEntity.ok(saves);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
         }
     }
 

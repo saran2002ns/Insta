@@ -18,4 +18,7 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
                         "WHERE t.user.userId = :userId")
     List<PostDto> findTaggedPostsByUserId(@Param("userId") String userId);
 
+    @Query("SELECT t FROM Tag t WHERE t.user.userId = :userId  AND t.post.postId = :postId")
+    Tag deleteTag(Long postId, String userId);
+
 }

@@ -9,6 +9,7 @@ function setUser(newUser){
     user=newUser;
     userId=newUser.userId;
 }
+
 export function getUser(){
     if(user==null){
         setUser(JSON.parse(localStorage.getItem('user')));
@@ -24,9 +25,83 @@ export function getUser(){
     }
     return user;
 }
-
+export const viewStory=async(storyId)=>{
+    const VIEW_STORY=API+`stories/${storyId}/view?loggedInUserId=${userId}`;
+    console.log('VIEW_STORY',VIEW_STORY);
+    try{
+        const response=await fetch(VIEW_STORY , {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              // Add auth headers here if needed
+            },
+            
+          });
+        const data=await response.json();
+        console.log('view story data',data);
+        return data;
+    }catch(error){
+        console.log('error',error);
+    }
+}
+export const removeFollower=async(userId1,userId2)=>{
+    const UNFOLLOW=API+`follows`;
+    console.log('removeFollower',UNFOLLOW);
+    try{    
+        const response=await fetch(UNFOLLOW, {
+            method: 'DELETE',
+            headers: { 
+                'Content-Type': 'application/json',
+                // Add auth headers here if needed
+            },
+            body: JSON.stringify( { userId: userId2, loggedInUserId: userId1 }),
+        });
+        const data=await response.json();
+        console.log('removeFollower data',data);
+        return data;
+    }catch(error){
+        console.log('error',error);
+    }
+}
+export const removeTag=async(postId)=>{
+    const TAG=API+`tags/${postId}?loggedInUserId=${userId}`
+    console.log('TAG',TAG);
+    try{
+        const response= await fetch(TAG, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              // Add auth headers here if needed
+            },
+            
+          });
+        const data=await response.json();
+        console.log('removeTag',data.message);
+        return data;
+    }catch(error){
+        console.log('error',error);
+    }
+}
 // Function to set userId
-
+export const deletePost=async(postId)=>{
+     const POST=API+`posts/${postId}`
+    console.log('POST',POST);
+    try{
+        const response= await fetch(POST, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              // Add auth headers here if needed
+            },
+            
+          });
+        const data=await response.json();
+        console.log('deletpost',data);
+        return data;
+    }catch(error){
+        console.log('error',error);
+    }
+}
 
 export const login=async(userId,password)=>{
     const LOGIN=API+`users/login`;
@@ -62,6 +137,7 @@ export const setLike=async(postId)=>{
           });
         const data=await response.json();
         console.log('like data',data);
+      
         return data;
     }catch(error){
         console.log('error',error);

@@ -30,7 +30,7 @@ public class LikeController {
             List<LikeDto> likes = likeService.getLikesByPostId(postId);
             return ResponseEntity.ok(likes);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
         }
     }
 

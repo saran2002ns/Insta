@@ -3,6 +3,7 @@ package com.qt.backend.service;
 import java.util.List;
 
 import com.qt.backend.dto.PostDto;
+import com.qt.backend.model.Tag;
 import com.qt.backend.repo.LikeRepository;
 import com.qt.backend.repo.PostRepository;
 import com.qt.backend.repo.SaveRepository;
@@ -38,6 +39,14 @@ public class TagService {
             post.getUser().setFollowing(followsRepository.countFollowingByUserId(post.getUser().getUserId()));
         }
         return posts;
+    }
+
+    public void deleteTag(Long postId, String userId) {
+        Tag tag =tagRepository.deleteTag(postId,userId);
+        if (tag == null) {
+            throw new RuntimeException("tag not found");
+        }
+        tagRepository.delete(tag);
     }
  
 

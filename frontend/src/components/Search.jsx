@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userData } from '../service/DB';
-import { getSearch ,setFollow,setUnfollow } from '../service/Api';
+import { getSearch ,setFollow,setUnfollow,getUser } from '../service/Api';
 
 function Search(props) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,6 +37,7 @@ function Search(props) {
 
 
   const handleUserClick = (userId, user) => {
+
     if (window.location.pathname === `/user/${userId}`) {
       navigate('/', { replace: true });
       setTimeout(() => {
@@ -99,7 +100,7 @@ function Search(props) {
 function SearchUser({ user, onUserClick }) {
   const [requested, setRequested] = useState(false);
   const [followed, setFollowed] = useState(user.followed || false);
-
+  const loggedUser=getUser();
   const handleFollowClick = (e) => {
     e.stopPropagation();
     if (requested) {
@@ -107,11 +108,17 @@ function SearchUser({ user, onUserClick }) {
     } else if (followed) {
       setFollowed(false); // Unfollow
       setUnfollow(user.userId);
+      loggedUser.following=loggedUser.following-1;
+      user.followed=false;
+      user.followers=user.followers-1;
     } else if (user.private) {
       setRequested(true); // Send follow request
     } else {
       setFollowed(true); // Follow public
       setFollow(user.userId);
+      loggedUser.following=loggedUser.following+1;
+      user.followed=true;
+      user.followers=user.followers+1;
     }
   };
 

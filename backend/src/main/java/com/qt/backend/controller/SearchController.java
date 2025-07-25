@@ -27,7 +27,7 @@ public class SearchController {
             List<UserDto> results = searchService.searchPosts(query, loggedInUserId);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
         }
     }
 }

@@ -31,7 +31,7 @@ public class FollowsController {
             List<UserDto> followers = followsService.getFollowersByUserId(userId);
             return ResponseEntity.ok(followers);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
         }
     }
 
@@ -41,7 +41,7 @@ public class FollowsController {
             List<UserDto> following = followsService.getFollowingByUserId(userId);
             return ResponseEntity.ok(following);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
         }
     }
 
@@ -51,7 +51,7 @@ public class FollowsController {
             boolean isFollowing = followsService.isFollowing(user1, user2);
             return ResponseEntity.ok(isFollowing);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
         }
     }
 

@@ -29,7 +29,7 @@ public class CommentController {
             List<CommentDto> comments = commentService.getCommentsByPostId(postId);
             return ResponseEntity.ok(comments);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
         }
     }
 
@@ -37,9 +37,9 @@ public class CommentController {
     public ResponseEntity<?> addComment(@RequestBody CommentRequest commentRequest) {
         try {
             commentService.addComment(commentRequest);
-            return ResponseEntity.ok("Comment added successfully");
+            return ResponseEntity.ok(java.util.Map.of("message","succesfully commented"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
         }
     }
 

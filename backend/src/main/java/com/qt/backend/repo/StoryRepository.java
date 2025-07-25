@@ -6,6 +6,7 @@ import com.qt.backend.dto.StoryDto;
 import com.qt.backend.model.Story;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -23,6 +24,10 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
             "WHERE s.user.userId IN :userIds")
     List<StoryDto> findByUserIdInWithViewStatus(@Param("userIds") List<String> userIds,
                                                 @Param("viewerId") String viewerId);
+
+    
+
+    
 }
 
 

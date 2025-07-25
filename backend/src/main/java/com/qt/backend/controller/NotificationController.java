@@ -26,7 +26,7 @@ public class NotificationController {
             List<NotificationDto> notifications = notificationService.getNotifications(userId);
             return ResponseEntity.ok(notifications);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
         }
     }
 

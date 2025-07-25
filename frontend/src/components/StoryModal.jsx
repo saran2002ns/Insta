@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getUser } from '../service/Api';
 
-export default function StoryModal({ stories, initialIndex = 0, onClose, onStoryViewed }) {
+export default function StoryModal({ stories, initialIndex = 0, onClose, onStoryViewed, setUserStoryViewed }) {
+  const loggedInUser = getUser();
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [progress, setProgress] = useState(0);
   const videoRef = useRef(null);
@@ -102,9 +104,12 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
     if (currentStory.mediaType === 'image') {
       if (!currentStory.viewed) {
         imageViewTimeout.current = setTimeout(() => {
-          if (onStoryViewed && currentStory._originalIndex !== undefined) {
+          if (currentStory.userId === loggedInUser.userId) {
+            setUserStoryViewed();
+          }else if (onStoryViewed && currentStory._originalIndex !== undefined) {
             onStoryViewed(currentStory._originalIndex);
           }
+         
         }, 1000);
       }
       // Auto-advance after IMAGE_DURATION seconds
@@ -264,7 +269,9 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
                       setVideoError(false);
                     }}
                     onPlay={() => {
-                      if (!currentStory.viewed && onStoryViewed && currentStory._originalIndex !== undefined) {
+                      if (currentStory.userId === loggedInUser.userId) {
+                        setUserStoryViewed();
+                      }else if (!currentStory.viewed && onStoryViewed && currentStory._originalIndex !== undefined) {
                         onStoryViewed(currentStory._originalIndex);
                       }
                     }}

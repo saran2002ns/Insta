@@ -13,12 +13,25 @@ function FeedInfo(props) {
   const [isPaused, setIsPaused] = useState(false);
   const videoRef = useRef(null);
   const handleLike = () => {
-    liked?setUnlike(post.postId):setLike(post.postId);
+   
+    if (!liked) {
+      setLike(post.postId);
+      setLikes((prev) => prev + 1);
+      post.liked=true;
+      post.likes=likes+1;
+     
+    } else {
+      setUnlike(post.postId);
+      setLikes((prev) => prev - 1);
+     
+      post.liked=false;
+      post.likes=likes-1;
+    }
     setLiked((prev) => !prev);
-    setLikes((prev) => (liked ? prev - 1 : prev + 1));
   };
   const handleSave = () => {
     saved?setUnsave(post.postId):setSave(post.postId);
+    saved?post.saved=false:post.saved=true;
     setSaved((prev) => !prev);
   };
 
@@ -38,10 +51,10 @@ function FeedInfo(props) {
           </span>
         </div>
       </div>
-      <div className="w-full bg-gray-100 flex items-center justify-center " style={{ minHeight: 300 }}>
+      <div className="w-full flex items-center justify-center" style={{ minHeight: 'calc(80vh - 64px)' }}> 
         {post.mediaType === 'video' ? (
         <div
-           className="relative w-full h-full flex items-center justify-center"
+           className="relative w-full h-[calc(80vh-64px)] flex items-center justify-center"
            onClick={() => {
              const video = videoRef.current;
              if (video) {
@@ -60,7 +73,7 @@ function FeedInfo(props) {
              playsInline
              loop
              muted
-             className="w-full h-full object-contain bg-black rounded-xl shadow-lg"
+             className="w-full h-full object-cover bg-black rounded-xl shadow-lg"
              onPlay={() => setIsPaused(false)}
              onPause={() => setIsPaused(true)}
            />
@@ -73,7 +86,7 @@ function FeedInfo(props) {
            )}
          </div>
         ) : (
-          <img src={post.mediaUrl} alt={post.caption} className="w-full max-h-[500px] object-contain rounded-md" />
+          <img src={post.mediaUrl} alt={post.caption} className="w-full h-[calc(80vh-64px)] object-cover rounded-md" />
         )}
       </div>
       <div className="flex items-center justify-between py-2">
@@ -121,7 +134,7 @@ function FeedInfo(props) {
         <span className="font-semibold text-gray-800 mr-2 text-sm">{post.user.userId}</span>
         <span className="text-gray-700 text-sm">{post.caption}</span>
       </div>
-      <div className="text-xs text-gray-500 mb-1 cursor-pointer" onClick={() => onUserClick(post.user.userId, post.user)}>
+      <div className="text-xs text-gray-500 mb-1 cursor-pointer" onClick={() => onCommentClick(post)}>
         View all {Array.isArray(post.comments) ? post.comments.length : post.comments} comments
       </div>
       <div className="text-xs text-gray-400">{post.createdAt}</div>
