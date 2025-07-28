@@ -12,8 +12,8 @@ public interface SearchRepository extends JpaRepository<User, String> {
 
     @Query("SELECT new com.qt.backend.dto.UserDto(u.userId, u.profilePicture, u.username, u.bio, u.isPrivate) "
     + "FROM User u "
-    + "WHERE u.username LIKE %:query% OR u.userId LIKE %:query%")
-    List<UserDto> searchPosts(String query, org.springframework.data.domain.Pageable pageable);
+    + "WHERE u.username LIKE %:query% OR u.userId LIKE %:query% AND u.userId != :userId")
+    List<UserDto> searchPosts(String query, org.springframework.data.domain.Pageable pageable,String userId);
     
 
 }

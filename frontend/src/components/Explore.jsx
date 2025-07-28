@@ -68,7 +68,7 @@ export default function Explore() {
       {item.mediaType === "video" ? (
         <>
           <video
-            src={item.mediaUrl}
+            src={item.mediaUrl }
             className="object-cover w-full h-full"
             muted
             playsInline

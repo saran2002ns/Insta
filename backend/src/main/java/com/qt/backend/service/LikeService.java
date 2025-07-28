@@ -1,12 +1,15 @@
 package com.qt.backend.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.qt.backend.dto.LikeDto;
 import com.qt.backend.repo.LikeRepository;
+import com.qt.backend.repo.NotificationRepository;
 import com.qt.backend.model.Post;
 import com.qt.backend.model.User;
 import com.qt.backend.model.Like;
+import com.qt.backend.model.Notification;
 import com.qt.backend.repo.PostRepository;
 import com.qt.backend.repo.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
 
     public List<LikeDto> getLikesByPostId(Long postId) {
         return likeRepository.findByPostId(postId);
@@ -41,6 +45,12 @@ public class LikeService {
         like.setPost(post);
         like.setUser(user);
         likeRepository.save(like);
+        Notification notification = new Notification();
+        notification.setUser(post.getUser());
+        notification.setByUser(user);
+        notification.setText("Liked your post");
+        notification.setCreatedAt(LocalDateTime.now());
+        notificationRepository.save(notification);
     }
 
     @Transactional

@@ -1,19 +1,23 @@
 import { useState } from 'react';
 import { reelTags, reelLocations, reelData } from '../service/DB';
 const API = 'http://localhost:8080/api/';
-let userId="mira_lennox";
+
 export let pageFeeds=0;
 export let pageReels=0;
 let user=null;
 function setUser(newUser){
     user=newUser;
-    userId=newUser.userId;
+    localStorage.setItem('user', JSON.stringify(user));
 }
 
 export function getUser(){
     if(user==null){
         setUser(JSON.parse(localStorage.getItem('user')));
     }
+    if(user==null){
+        setLoggedInUser();
+    }
+
     if(user==null){
         setUser({
             "userId": "mira_lennox",
@@ -25,8 +29,98 @@ export function getUser(){
     }
     return user;
 }
+export  const setLoggedInUser=async()=>{
+    const USER=API+`users/${getUser().userId}`;
+    console.log('USER',USER);
+    try{
+        const response=await fetch(USER);
+        const data=await response.json();
+        console.log('user data',data);
+        setUser(data);
+        return data;
+    }catch(error){  
+        console.log('error',error);
+    }
+}
+export const sentRequest=async(userId)=>{
+    const SENT_REQUEST=API+`requests/create/${userId}?loggedInUserId=${getUser().userId}`;
+    console.log('SENT_REQUEST',SENT_REQUEST);
+    try{
+        const response=await fetch(SENT_REQUEST, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Add auth headers here if needed
+            },
+            // body: JSON.stringify( { loggedInUserId: getUser().userId }),
+        });
+        const data=await response.json();
+        console.log('sent request data',data);
+        return data;
+    }catch(error){
+        console.log('error',error);
+    }
+}
+export const acceptRequest=async(userId)=>{
+    const ACCEPT_REQUEST=API+`requests/accept/${userId}?loggedInUserId=${getUser().userId}`;
+    console.log('ACCEPT_REQUEST',ACCEPT_REQUEST);
+    try{
+        const response=await fetch(ACCEPT_REQUEST, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                // Add auth headers here if needed
+            },
+            // body: JSON.stringify( { loggedInUserId: getUser().userId }),
+        }); 
+        const data=await response.json();
+        console.log('accept request data',data);
+        user.followers=user.followers+1;
+        return data;
+    }catch(error){
+        console.log('error',error);
+    }
+}
+export const deleteRequest=async(userId)=>{
+    const DELETE_REQUEST=API+`requests/delete/${userId}?loggedInUserId=${getUser().userId}`;
+    console.log('DELETE_REQUEST',DELETE_REQUEST);
+    try{
+        const response=await fetch(DELETE_REQUEST, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                // Add auth headers here if needed
+            },
+            // body: JSON.stringify( { loggedInUserId: getUser().userId }),
+        });
+        const data=await response.json();
+        console.log('delete request data',data);
+        return data;
+    }catch(error){
+        console.log('error',error);
+    }
+}
+export const cancelRequest=async(userId)=>{
+    const CANCEL_REQUEST=API+`requests/cancel/${userId}?loggedInUserId=${getUser().userId}`;
+    console.log('CANCEL_REQUEST',CANCEL_REQUEST);
+    try{
+        const response=await fetch(CANCEL_REQUEST, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                // Add auth headers here if needed
+            },
+            //  body: JSON.stringify( { loggedInUserId: getUser().userId }),
+        });
+        const data=await response.json();
+        console.log('cancel request data',data);
+        return data;
+    }catch(error){
+        console.log('error',error);
+    }
+}
 export const viewStory=async(storyId)=>{
-    const VIEW_STORY=API+`stories/${storyId}/view?loggedInUserId=${userId}`;
+    const VIEW_STORY=API+`stories/${storyId}/view?loggedInUserId=${getUser().userId}`;
     console.log('VIEW_STORY',VIEW_STORY);
     try{
         const response=await fetch(VIEW_STORY , {
@@ -64,7 +158,7 @@ export const removeFollower=async(userId1,userId2)=>{
     }
 }
 export const removeTag=async(postId)=>{
-    const TAG=API+`tags/${postId}?loggedInUserId=${userId}`
+    const TAG=API+`tags/${postId}?loggedInUserId=${getUser().userId}`
     console.log('TAG',TAG);
     try{
         const response= await fetch(TAG, {
@@ -133,7 +227,7 @@ export const setLike=async(postId)=>{
               'Content-Type': 'application/json',
               // Add auth headers here if needed
             },
-            body: JSON.stringify( { postId: postId, userId: userId }),
+            body: JSON.stringify( { postId: postId, userId: getUser().userId }),
           });
         const data=await response.json();
         console.log('like data',data);
@@ -153,7 +247,7 @@ export const setUnlike=async(postId)=>{
               'Content-Type': 'application/json',
               // Add auth headers here if needed
             },
-            body:  JSON.stringify(  { postId: postId, userId: userId }),
+            body:  JSON.stringify(  { postId: postId, userId: getUser().userId }),
           });
         const data=await response.json();
         console.log('like data',data);
@@ -172,7 +266,7 @@ export const setComment=async(postId,comment)=>{
                 'Content-Type': 'application/json',
                 // Add auth headers here if needed
             },
-            body: JSON.stringify( { postId: postId, userId: userId, commentText: comment }),
+            body: JSON.stringify( { postId: postId, userId: getUser().userId, commentText: comment }),
         });
         const data=await response.json();
         console.log('comment data',data); 
@@ -191,7 +285,7 @@ export const setSave=async(postId)=>{
                 'Content-Type': 'application/json',
                 // Add auth headers here if needed
             },
-            body: JSON.stringify( { postId: postId, userId: userId }),
+            body: JSON.stringify( { postId: postId, userId: getUser().userId }),
         });
         const data=await response.json();
         console.log('save data',data); 
@@ -210,7 +304,7 @@ export const setUnsave=async(postId)=>{
                 'Content-Type': 'application/json',
                 // Add auth headers here if needed
             },
-            body: JSON.stringify( { postId: postId, userId: userId }),
+            body: JSON.stringify( { postId: postId, userId: getUser().userId }),
         });
         const data=await response.json();
         console.log('save data',data);  
@@ -229,7 +323,7 @@ export const setFollow=async(userId2)=>{
                 'Content-Type': 'application/json',
                 // Add auth headers here if needed
             },
-            body: JSON.stringify( { userId: userId2, loggedInUserId: userId }),
+            body: JSON.stringify( { userId: userId2, loggedInUserId: getUser().userId }),
         });
         const data=await response.json();
         console.log('follow data',data);
@@ -248,7 +342,7 @@ export const setUnfollow=async(userId2)=>{
                 'Content-Type': 'application/json',
                 // Add auth headers here if needed
             },
-            body: JSON.stringify( { userId: userId2, loggedInUserId: userId }),
+            body: JSON.stringify( { userId: userId2, loggedInUserId: getUser().userId }),
         });
         const data=await response.json();
         console.log('unfollow data',data);
@@ -270,7 +364,7 @@ export const getComments=async(postId)=>{
     }
 }
 export const getSuggections=async()=>{
-    const suggestions=API+`users/${userId}/suggestions`;
+    const suggestions=API+`users/${getUser().userId}/suggestions`;
     console.log('SUGGESTIONS',suggestions);
     try{
         const response=await fetch(suggestions);       
@@ -283,7 +377,7 @@ export const getSuggections=async()=>{
 }
 
 export const getFollowers=async(userId)=>{
-    const FOLLOWERS=API+`follows/followers/${userId}`;
+    const FOLLOWERS=API+`follows/followers/${userId}?loggedInUserId=${getUser().userId}`;
     console.log('FOLLOWERS',FOLLOWERS);
     try{
         const response=await fetch(FOLLOWERS);
@@ -295,7 +389,7 @@ export const getFollowers=async(userId)=>{
     }
 }
 export const getFollowing=async(userId)=>{
-    const FOLLOWING=API+`follows/following/${userId}`;
+    const FOLLOWING=API+`follows/following/${userId}?loggedInUserId=${getUser().userId}`;
     console.log('FOLLOWING',FOLLOWING);
     try{
         const response=await fetch(FOLLOWING);
@@ -307,7 +401,7 @@ export const getFollowing=async(userId)=>{
     }
 }
 export const getIsFollower=async(userId1)=>{
-    const IS_FOLLOWER=API+`follows?user1=${userId1}&user2=${userId}`;
+    const IS_FOLLOWER=API+`follows?user1=${userId1}&user2=${getUser().userId}`;
     console.log('IS_FOLLOWER',IS_FOLLOWER);
     try{
         const response=await fetch(IS_FOLLOWER);
@@ -330,8 +424,8 @@ export const getLikes=async(postId)=>{
         return error;
     }
 }
-export const getNotifications=async()=>{
-    const NOTIFICATIONS=API+`notifications/${userId}`;
+export const getNotifications=async(page)=>{
+    const NOTIFICATIONS=API+`notifications/${getUser().userId}?page=${page}`;
     console.log('NOTIFICATIONS',NOTIFICATIONS);
     try{
         const response=await fetch(NOTIFICATIONS);
@@ -343,7 +437,7 @@ export const getNotifications=async()=>{
     }
 }
 export const getPosts=async(userId2)=>{
-    const POSTS=API+`posts/${userId2}?loggedInUserId=${userId}`;
+    const POSTS=API+`posts/${userId2}?loggedInUserId=${getUser().userId}`;
     console.log('POSTS',POSTS);
 
     try{
@@ -368,7 +462,7 @@ export const getPostsOfUser=async(userId,postId)=>{
     }
 }
 export const getFeeds=async(page)=>{
-    const FEEDS=API+`posts/feeds/${userId}?page=${page}`;
+    const FEEDS=API+`posts/feeds/${getUser().userId}?page=${page}`;
     console.log('FEEDS',FEEDS);
     try{
         const response=await fetch(FEEDS);
@@ -381,7 +475,7 @@ export const getFeeds=async(page)=>{
     }
 }    
 export const getReels = async (page) => {
-    const REELS=API+`posts/reels/${userId}?page=${page}`;
+    const REELS=API+`posts/reels/${getUser().userId}?page=${page}`;
     console.log('REELS',REELS);
     try{
         const response=await fetch(REELS);
@@ -394,7 +488,7 @@ export const getReels = async (page) => {
 }
 
 export const getSaves=async()=>{
-    const SAVES=API+`saves/${userId}`;
+    const SAVES=API+`saves/${getUser().userId}`;
     console.log('SAVES',SAVES);
     try{
         const response=await fetch(SAVES);
@@ -418,7 +512,7 @@ export const getTags=async(userId)=>{
     }
 }
 export const getSearch=async(query)=>{
-    const SEARCH=API+`search/${query}?loggedInUserId=${userId}`;
+    const SEARCH=API+`search/${query}?loggedInUserId=${getUser().userId}`;
     console.log('SEARCH',SEARCH);
     try{
         const response=await fetch(SEARCH);
@@ -430,7 +524,7 @@ export const getSearch=async(query)=>{
     }
 }
 export const getStories=async()=>{
-    const STORIES=API+`stories/${userId}`;
+    const STORIES=API+`stories/${getUser().userId}`;
     console.log('STORIES',STORIES);
     try{
         const response=await fetch(STORIES);    
@@ -477,4 +571,42 @@ export async function deleteApi(url, body) {
     // No content
   }
   return data;
+}
+export const setPost=async(post)=>{
+    const POST=API+`posts`;
+    console.log('POST',POST);
+    try{
+        const response=await fetch(POST, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Add auth headers here if needed
+            },
+            body: JSON.stringify(post),
+        }); 
+        const data=await response.json();
+        console.log('post data',data);
+        return data;
+    }catch(error){
+        return error;
+    }
+}
+
+export async function cloudUpload(fileOrBlob, fileType = "auto") {
+  const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/df0wephst/${fileType}/upload`;
+  const CLOUDINARY_UPLOAD_PRESET = "quick_teck";
+  const formData = new FormData();
+  formData.append("file", fileOrBlob);
+  formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+  const response = await fetch(CLOUDINARY_UPLOAD_URL, {
+    method: "POST",
+    body: formData,
+  });
+  const data = await response.json();
+  if (data.secure_url) {
+    return data.secure_url;
+  } else {
+    throw new Error(data.error?.message || "Cloudinary upload failed");
+  }
 }

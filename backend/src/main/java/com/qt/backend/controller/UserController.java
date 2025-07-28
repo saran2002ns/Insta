@@ -5,12 +5,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.qt.backend.dto.UserDto;
 import com.qt.backend.dto.UserPasswordCheckDto;
-import com.qt.backend.dto.UserProfileDto;
 import com.qt.backend.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -27,9 +25,9 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUser(@PathVariable String userId,@RequestParam String loggedInUserId ) {
+    public ResponseEntity<?> getUser(@PathVariable String userId) {
         try {
-            UserProfileDto user = userService.getUserById(userId,loggedInUserId);
+            UserDto user = userService.getUserById(userId);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));

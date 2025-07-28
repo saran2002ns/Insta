@@ -5,7 +5,7 @@ import { FaVolumeMute, FaPlay } from "react-icons/fa";
 import { MdLocationPin } from "react-icons/md";
 import { useSwipeable } from 'react-swipeable';
 import PostInfo from './PostInfo';
-import { getReels,setLike,setUnlike,setSave,setUnsave ,setFollow,setUnfollow,getUser} from '../service/Api';
+import { getReels,setLike,setUnlike,setSave,setUnsave ,setFollow,setUnfollow,getUser,sentRequest,cancelRequest} from '../service/Api';
 
 const INITIAL_LOAD = 10;
 const LOAD_MORE = 10;
@@ -15,7 +15,7 @@ function ReelInfo({ reel, onUserClick, onCommentClick,  muted, toggleMute, isPla
   const [liked, setLiked] = useState(reel.liked || false);
   const [likes, setLikes] = useState(reel.likes || 0);
   const [saved, setSaved] = useState(reel.saved || false);
-  const [requested, setRequested] = useState(false);
+  const [requested, setRequested] = useState(reel.user.requested || false);
   const [followed, setFollowed] = useState(reel.user.followed || false);
   const [user, setUser] = useState(reel.user);
   const loggedUser=getUser();
@@ -43,7 +43,10 @@ function ReelInfo({ reel, onUserClick, onCommentClick,  muted, toggleMute, isPla
   const handleFollowClick = (e) => {
     e.stopPropagation();
     if (requested) {
-      setRequested(false); // Cancel follow request
+      setRequested(false);
+      user.requested=false;
+      // Cancel follow request
+      cancelRequest(user.userId);
     } else if (followed) {
       setFollowed(false); // Unfollow
       setUnfollow(user.userId);
@@ -51,7 +54,10 @@ function ReelInfo({ reel, onUserClick, onCommentClick,  muted, toggleMute, isPla
       user.followed=false;
       user.followers=user.followers-1;
     } else if (reel.user.private) {
-      setRequested(true); // Send follow request
+      setRequested(true);
+      user.requested=true;
+      // Send follow request
+      sentRequest(user.userId);
     } else {
       setFollowed(true); // Follow public
       setFollow(user.userId);

@@ -14,6 +14,7 @@ public class UserDto {
     private Long posts;
     private Long followers;
     private Long following;
+    private boolean isRequested;
 
     public UserDto(String userId, String profilePicture, String username,String bio, boolean isPrivate) {
         this.userId = userId;
@@ -34,5 +35,8 @@ public class UserDto {
 
     public void setIsFollowed(boolean isFollowed) {
         this.isFollowed = isFollowed;
+    }
+    public void setIsRequested(boolean isRequested) {
+        this.isRequested = isRequested;
     }
 }

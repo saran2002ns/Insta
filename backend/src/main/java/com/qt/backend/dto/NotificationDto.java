@@ -14,12 +14,14 @@ public class NotificationDto {
     private Long id;
     private UserDto user;
     private String type;
+    private String text;
     private LocalDateTime createdAt;
 
-    public NotificationDto(Long id, String profilePicture, String userId, String username,String bio,boolean isPrivate, String type, java.time.LocalDateTime createdAt) {
+    public NotificationDto(Long id, String profilePicture, String userId, String username,String bio,boolean isPrivate,  String text, java.time.LocalDateTime createdAt) {
         this.id = id;
         this.user = new UserDto(userId, profilePicture, username,bio,isPrivate);
-        this.type = type;
+        this.text = text;
         this.createdAt = createdAt;
     }
+    
 }

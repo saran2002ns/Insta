@@ -16,114 +16,91 @@ export const MAIN_ROUTES = [
 ];
 export const notifications = [ 
   {
-    "id": 20,
+    "id": 603,
     "user": {
       "userId": "lisa_moon",
       "profilePicture": "https://cdn.pixabay.com/photo/2019/11/29/21/30/girl-4662158_1280.jpg",
       "username": "Lisa Moon",
+      "bio": "Design addict | Plant lover | Powered by matcha.",
+      "posts": 3,
+      "followers": 6,
+      "following": 4,
       "private": false,
-      "followed": false
-    },
-    "type": "comment",
-    "createdAt": "2025-07-17T10:52:00"
-  },
-  {
-    "id": 34,
-    "user": {
-      "userId": "tanya_fern",
-      "profilePicture": "https://cdn.pixabay.com/photo/2020/09/18/21/07/woman-5582962_1280.jpg",
-      "username": "Tanya Fern",
-      "private": false,
-      "followed": false
+      "followed": true
     },
     "type": "follow",
-    "createdAt": "2025-07-17T11:20:00"
+    "text": "Followed you",
+    "createdAt": "2025-07-26T12:43:37.451476"
   },
   {
-    "id": 45,
+    "id": 604,
     "user": {
-      "userId": "kai_reynolds",
-      "profilePicture": "https://cdn.pixabay.com/photo/2023/03/02/11/38/man-7825138_1280.jpg",
-      "username": "Kai Reynolds",
+      "userId": "lisa_moon",
+      "profilePicture": "https://cdn.pixabay.com/photo/2019/11/29/21/30/girl-4662158_1280.jpg",
+      "username": "Lisa Moon",
+      "bio": "Design addict | Plant lover | Powered by matcha.",
+      "posts": 3,
+      "followers": 6,
+      "following": 4,
       "private": false,
-      "followed": false
+      "followed": true
     },
     "type": "comment",
-    "createdAt": "2025-07-17T11:42:00"
+    "text": "Commented on your post : nice",
+    "createdAt": "2025-07-26T12:46:21.475215"
   },
   {
-    "id": 67,
+    "id": 605,
     "user": {
-      "userId": "sophie_moon",
-      "profilePicture": "https://cdn.pixabay.com/photo/2016/11/29/06/08/woman-1867715_1280.jpg",
-      "username": "Sophie Moon",
-      "private": true,
-      "followed": false
+      "userId": "lisa_moon",
+      "profilePicture": "https://cdn.pixabay.com/photo/2019/11/29/21/30/girl-4662158_1280.jpg",
+      "username": "Lisa Moon",
+      "bio": "Design addict | Plant lover | Powered by matcha.",
+      "posts": 3,
+      "followers": 6,
+      "following": 4,
+      "private": false,
+      "followed": true
     },
     "type": "comment",
-    "createdAt": "2025-07-17T12:16:00"
+    "text": "Commented on your post : nice car",
+    "createdAt": "2025-07-26T12:46:37.740442"
   },
   {
-    "id": 84,
+    "id": 606,
     "user": {
-      "userId": "nora_faye",
-      "profilePicture": "https://cdn.pixabay.com/photo/2020/09/10/11/30/girl-5560212_1280.jpg",
-      "username": "Nora Faye",
+      "userId": "lisa_moon",
+      "profilePicture": "https://cdn.pixabay.com/photo/2019/11/29/21/30/girl-4662158_1280.jpg",
+      "username": "Lisa Moon",
+      "bio": "Design addict | Plant lover | Powered by matcha.",
+      "posts": 3,
+      "followers": 6,
+      "following": 4,
       "private": false,
-      "followed": false
+      "followed": true
     },
     "type": "like",
-    "createdAt": "2025-07-17T12:33:00"
+    "text": "Liked your post",
+    "createdAt": "2025-07-26T12:46:41.908187"
   },
   {
-    "id": 115,
+    "id": 607,
     "user": {
-      "userId": "ethan_cross",
-      "profilePicture": "https://cdn.pixabay.com/photo/2017/03/27/15/21/man-2179358_1280.jpg",
-      "username": "Ethan Cross",
+      "userId": "lisa_moon",
+      "profilePicture": "https://cdn.pixabay.com/photo/2019/11/29/21/30/girl-4662158_1280.jpg",
+      "username": "Lisa Moon",
+      "bio": "Design addict | Plant lover | Powered by matcha.",
+      "posts": 3,
+      "followers": 6,
+      "following": 4,
       "private": false,
-      "followed": false
-    },
-    "type": "comment",
-    "createdAt": "2025-07-17T13:04:00"
-  },
-  {
-    "id": 128,
-    "user": {
-      "userId": "milo_paws",
-      "profilePicture": "https://cdn.pixabay.com/photo/2020/09/06/20/21/cat-5550033_1280.jpg",
-      "username": "Milo Paws",
-      "private": false,
-      "followed": false
-    },
-    "type": "follow",
-    "createdAt": "2025-07-17T13:17:00"
-  },
-  {
-    "id": 157,
-    "user": {
-      "userId": "zane_bennett",
-      "profilePicture": "https://cdn.pixabay.com/photo/2015/05/28/05/03/portrait-787522_1280.jpg",
-      "username": "Zane Bennett",
-      "private": false,
-      "followed": false
-    },
-    "type": "follow",
-    "createdAt": "2025-07-17T13:46:00"
-  },
-  {
-    "id": 176,
-    "user": {
-      "userId": "nora_carter",
-      "profilePicture": "https://cdn.pixabay.com/photo/2020/11/26/07/38/rough-collie-5778136_1280.jpg",
-      "username": "Nora Carter",
-      "private": false,
-      "followed": false
+      "followed": true
     },
     "type": "like",
-    "createdAt": "2025-07-17T14:05:00"
-  }];
-
+    "text": "Liked your post",
+    "createdAt": "2025-07-26T12:46:47.497517"
+  }
+];
 export const suggestions = [
   {
     "userId": "aliciast88",

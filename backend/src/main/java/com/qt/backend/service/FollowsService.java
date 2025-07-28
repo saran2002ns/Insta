@@ -1,11 +1,15 @@
 package com.qt.backend.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.qt.backend.dto.UserDto;
 import com.qt.backend.model.Follows;
+import com.qt.backend.model.Notification;
 import com.qt.backend.repo.FollowsRepository;
+import com.qt.backend.repo.NotificationRepository;
 import com.qt.backend.repo.PostRepository;
+import com.qt.backend.repo.RequestRepository;
 import com.qt.backend.repo.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -18,24 +22,36 @@ public class FollowsService {
     private final FollowsRepository followsRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final NotificationRepository  notificationRepository;
+    private final RequestRepository requestRepository;
 
-    public List<UserDto> getFollowersByUserId(String userId) {
+    public List<UserDto> getFollowersByUserId(String userId, String loggedInUserId) {
         List<UserDto> users = followsRepository.findFollowersByUserId(userId);
         for (UserDto user : users) {
-            user.setIsFollowed(isFollowing(userId, user.getUserId()));
+            user.setIsFollowed(isFollowing(loggedInUserId, user.getUserId()));
             user.setPosts(postRepository.countPostsByUserId(user.getUserId()));
             user.setFollowers(followsRepository.countFollowersByUserId(user.getUserId()));
             user.setFollowing(followsRepository.countFollowingByUserId(user.getUserId()));
+            if(!user.isFollowed() && user.isPrivate()){
+                user.setIsRequested(requestRepository.findByUserAndByUser(user.getUserId(), userId).isPresent());
+            }else{
+                user.setIsRequested(false);
+            }
         }
         return users;
     }
 
-    public List<UserDto> getFollowingByUserId(String userId) {
+    public List<UserDto> getFollowingByUserId(String userId, String loggedInUserId) {
         List<UserDto> users = followsRepository.findFollowingByUserId(userId);
         for (UserDto user : users) {
-            user.setIsFollowed(true);
+            user.setIsFollowed(isFollowing(loggedInUserId, user.getUserId()));
             user.setFollowers(followsRepository.countFollowersByUserId(user.getUserId()));
             user.setFollowing(followsRepository.countFollowingByUserId(user.getUserId()));
+            if(!user.isFollowed() && user.isPrivate()){
+                user.setIsRequested(requestRepository.findByUserAndByUser(user.getUserId(), userId).isPresent());
+            }else{
+                user.setIsRequested(false);
+            }
         }
 
         return users;
@@ -54,6 +70,12 @@ public class FollowsService {
         follow.setFollower(userRepository.findByUserId(loggedInUserId));
         follow.setFollowing(userRepository.findByUserId(userId));
         followsRepository.save(follow);
+        Notification notification = new Notification();
+        notification.setUser(userRepository.findByUserId(userId));
+        notification.setByUser(userRepository.findByUserId(loggedInUserId));
+        notification.setText("Followed you");   
+        notification.setCreatedAt(LocalDateTime.now());
+        notificationRepository.save(notification);
     }
 
     public void unfollowUser(String userId, String loggedInUserId) {

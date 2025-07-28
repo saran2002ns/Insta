@@ -3,6 +3,10 @@ import PostInfo from './PostInfo';
 import { getFeeds,setLike,setUnlike,setSave,setUnsave } from '../service/Api';
 import { postData } from '../service/DB';
 import { useNavigate } from 'react-router-dom';
+import defaultProfilePicture from '../images/Profile.webp'; 
+import defaultVideo from '../images/mockVideo.mp4';
+import defaultImage from '../images/mockImage.jpg';
+
 
 // FeedInfo child component
 function FeedInfo(props) {
@@ -39,11 +43,12 @@ function FeedInfo(props) {
     <div key={post.postId} className="bg-white px-4 md:px-10">
       <div className="flex items-center px-2 py-3 ">
         <img
-          src={post.user.profilePicture}
+          src={post.user.profilePicture || defaultProfilePicture}
           alt={post.user.userId}
           className="w-10 h-10 rounded-full object-cover border-2 border-gray-200 "
           style={{ cursor: 'pointer' }}
           onClick={() => onUserClick(post.user.userId, post.user)}
+          onError={(e) => e.target.src = defaultProfilePicture}
         />
         <div className="ml-3 flex-1">
           <span className="font-semibold text-gray-800 text-sm cursor-pointer" onClick={() => onUserClick(post.user.userId, post.user)}>
@@ -68,7 +73,7 @@ function FeedInfo(props) {
          >
            <video
              ref={videoRef}
-             src={post.mediaUrl}
+             src={post.mediaUrl || defaultVideo}
              autoPlay
              playsInline
              loop
@@ -86,7 +91,7 @@ function FeedInfo(props) {
            )}
          </div>
         ) : (
-          <img src={post.mediaUrl} alt={post.caption} className="w-full h-[calc(80vh-64px)] object-cover rounded-md" />
+          <img src={post.mediaUrl || defaultImage} alt={post.caption} className="w-full h-[calc(80vh-64px)] object-cover rounded-md" />
         )}
       </div>
       <div className="flex items-center justify-between py-2">

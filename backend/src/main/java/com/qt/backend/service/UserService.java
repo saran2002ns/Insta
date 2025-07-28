@@ -2,11 +2,11 @@ package com.qt.backend.service;
 
 import com.qt.backend.dto.UserDto;
 import com.qt.backend.dto.UserPasswordCheckDto;
-import com.qt.backend.dto.UserProfileDto;
-import com.qt.backend.model.User;
+
 import com.qt.backend.repo.FollowsRepository;
 import com.qt.backend.repo.PostRepository;
 import com.qt.backend.repo.UserRepository;
+import com.qt.backend.repo.RequestRepository;
 
 import java.util.List;
 
@@ -21,19 +21,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final FollowsRepository followsRepository;
     private final PostRepository postRepository;
-    public UserProfileDto getUserById(String userId,String userId2) {
-        User user = userRepository.findByUserId(userId);
-        UserProfileDto userProfileDto = new UserProfileDto(user.getUserId(), user.getProfilePicture(), user.getUsername(), user.getBio(), user.isPrivate());
-        if(!userId.equals(userId2))
-        userProfileDto.setIsFollowed(followsRepository.findAnyFollowByUserIdAndFollowingId(userId, userId2));
-        else
-        userProfileDto.setIsFollowed(true);
-        userProfileDto.setPosts(postRepository.countPostsByUserId(userId));
-        userProfileDto.setFollowers(followsRepository.countFollowersByUserId(userId));
-        userProfileDto.setFollowing(followsRepository.countFollowingByUserId(userId));
-        return userProfileDto;
-       
+    private final RequestRepository requestRepository;
+
+    public UserDto getUserById(String userId) {
+        UserDto user = userRepository.findUserDtoByUserId(userId);
+        user.setIsFollowed(true);
+        user.setPosts(postRepository.countPostsByUserId(userId));
+        user.setFollowers(followsRepository.countFollowersByUserId(userId));
+        user.setFollowing(followsRepository.countFollowingByUserId(userId));
+        user.setIsRequested(false);
+        return user;
     }
+  
 
     public UserDto checkPassword(UserPasswordCheckDto userPasswordCheckDto) {
 
@@ -45,6 +44,7 @@ public class UserService {
             user.setPosts(postRepository.countPostsByUserId(user.getUserId()));
             user.setFollowers(followsRepository.countFollowersByUserId(user.getUserId()));
             user.setFollowing(followsRepository.countFollowingByUserId(user.getUserId()));
+            user.setIsRequested(false);
         }
         return user;
 
@@ -55,10 +55,15 @@ public class UserService {
     public List<UserDto> getUserSuggestions(String userId) {
         List<UserDto> users = userRepository.findUsersNotFollowedBy(userId, PageRequest.of(0, 10));
         for(UserDto user:users){
-            user.setIsFollowed(followsRepository.findAnyFollowByUserIdAndFollowingId(userId, user.getUserId()));
+            user.setIsFollowed(false);
             user.setPosts(postRepository.countPostsByUserId(user.getUserId()));
             user.setFollowers(followsRepository.countFollowersByUserId(user.getUserId()));
             user.setFollowing(followsRepository.countFollowingByUserId(user.getUserId()));
+            if(!user.isFollowed() && user.isPrivate()){
+                user.setIsRequested(requestRepository.findByUserAndByUser(user.getUserId(), userId).isPresent());
+            }else{
+                user.setIsRequested(false);
+            }
         }
         return users;
     }

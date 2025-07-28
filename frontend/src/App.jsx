@@ -10,6 +10,7 @@ import Create from './components/Create';
 import Profile from './components/Profile';
 import More from './components/More';
 import Login from './components/Login';
+import Logout from './components/Logout';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function ProfileWithKey() {
@@ -22,6 +23,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/logout" element={<Logout />} />
         <Route
           path="/user/:username"
           element={

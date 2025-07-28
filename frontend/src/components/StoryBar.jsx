@@ -4,6 +4,7 @@ import { stories as storiesDB } from '../service/DB';
 import { viewStory } from '../service/Api';
 import { getUser } from '../service/Api';
 import StoryModal from './StoryModal';
+import defaultProfilePicture from '../images/Profile.webp'; 
 
 export default function StoryBar() {
   const scrollRef = useRef(null);
@@ -95,11 +96,11 @@ export default function StoryBar() {
 
   return (
     <>
-      <div className="relative bg-white w-full h-28 overflow-hidden flex items-center">
+      <div className="relative bg-white w-full h-32 overflow-hidden flex items-center pl-2 pr-1">
         {isOverflowing && canScrollLeft && (
           <button
             className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full  p-1"
-            onClick={() => scrollRef.current.scrollBy({ left: -261, behavior: 'smooth' })}
+            onClick={() => scrollRef.current.scrollBy({ left: -262, behavior: 'smooth' })}
             type="button"
           >
             <i className="fa-solid fa-circle-chevron-left text-2xl text-white"></i>
@@ -107,14 +108,14 @@ export default function StoryBar() {
         )}
         <div
           ref={scrollRef}
-          className="flex items-center h-full overflow-x-auto scroll-smooth no-scrollbar pl-4 space-x-9 w-full"
+          className="flex items-center h-full overflow-x-auto scroll-smooth no-scrollbar   w-full"
         >
           {/* Your Story (first item) */}
           {!loading &&
-           <div className="flex flex-col justify-center items-center min-w-[50px]">
-            <div className="relative w-20 h-20 mb-1 flex items-center justify-center">
+           <div className="flex flex-col justify-center items-center min-w-[95px] mr-2">
+            <div className="relative w-24 h-24 mb-1 flex items-center justify-center">
               <div
-                className={`p-[3px] w-20 h-20 rounded-full overflow-hidden flex items-center justify-center ${userStory ? (userStory.viewed ? 'border-2 border-white bg-slate-200' : 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600') : 'bg-gradient-to-tr from-blue-400 to-blue-600'} cursor-pointer group`}
+                className={`p-[4px] w-24 h-24 rounded-full overflow-hidden flex items-center justify-center ${userStory ? (userStory.viewed ? 'border-2 border-white bg-slate-200' : 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600') : 'bg-gradient-to-tr from-blue-400 to-blue-600'} cursor-pointer group`}
                 onClick={() => {
                   if (userStory) {
                     setStoryModalOpen(true);
@@ -126,7 +127,7 @@ export default function StoryBar() {
                 }}
               >
                 <img
-                  src={userStory ? userStory.profilePicture : loggedInUser.profilePicture}
+                  src={userStory ? userStory.profilePicture : loggedInUser.profilePicture || defaultProfilePicture} //loggedInUser.profilePicture    
                   alt={loggedInUser.userId}
                   className="object-cover w-full h-full rounded-full border-2 border-white"
                 />
@@ -147,8 +148,8 @@ export default function StoryBar() {
           </div> }
           {loading ? (
             Array.from({ length: 5 }).map((_, index) => (
-              <div key={`loading-${index}`} className="flex flex-col justify-center items-center min-w-[50px]">
-                <div className="p-[3px] w-20 h-20 rounded-full overflow-hidden flex items-center justify-center mb-1 bg-gray-200 animate-pulse">
+              <div key={`loading-${index}`} className="flex flex-col justify-center items-center min-w-[80px]">
+                <div className="p-[4px] w-24 h-24 rounded-full overflow-hidden flex items-center justify-center mb-1 bg-gray-200 animate-pulse">
                   <div className="w-full h-full rounded-full bg-gray-300"></div>
                 </div>
                 <div className="w-12 h-3 bg-gray-200 rounded animate-pulse"></div>
@@ -159,10 +160,10 @@ export default function StoryBar() {
             getSortedStories().map((story, index) => (
               <div
                 key={`${story.storyId}-${story._originalIndex}`}
-                className="flex flex-col justify-center items-center min-w-[50px]"
+                className=" flex flex-col justify-center items-center  min-w-[95px] mr-2"
               >
                 <div
-                  className={`p-[3px] w-20 h-20 rounded-full overflow-hidden flex items-center justify-center mb-1 ${story.viewed ? 'border-2 border-white bg-slate-200' : 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600'}`}
+                  className={`p-[4px] w-24 h-24 rounded-full overflow-hidden flex items-center justify-center mb-1 ${story.viewed ? 'border-2 border-white bg-slate-200' : 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600'}`}
                   onClick={() => {
                     setStoryModalOpen(true);
                     setStoryModalIndex(index);
@@ -171,7 +172,7 @@ export default function StoryBar() {
                   style={{ cursor: 'pointer' }}
                 >
                   <img
-                    src={story.profilePicture}
+                    src={story.profilePicture || defaultProfilePicture}
                     alt={story.userId}
                     className="object-cover w-full h-full rounded-full border-2 border-white"
                   />
@@ -188,7 +189,7 @@ export default function StoryBar() {
         {isOverflowing && canScrollRight && (
           <button
             className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full  p-1"
-            onClick={() => scrollRef.current.scrollBy({ left: 261, behavior: 'smooth' })}
+            onClick={() => scrollRef.current.scrollBy({ left: 262, behavior: 'smooth' })}
             type="button"
           >
             <i className="fa-solid fa-circle-chevron-right text-2xl text-white"></i>

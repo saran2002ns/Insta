@@ -91,6 +91,39 @@ const Login = () => {
             Quick Login: lisa_moon
           </button>
         </div>
+        <div className="flex flex-row gap-4 mt-4 w-full">
+          <button
+            onClick={() => quickLogin('ivy_rivera', '$2b$10$wIojh0X8RvwXeYzM3bUt5uMS9coqfFtMY0zftXbiP1rfm8GIB/m5y')}
+            className="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-2 rounded-lg shadow text-sm transition-all duration-150"
+            disabled={loading}
+          >
+            Quick Login : ivy_rivera
+          </button>
+          <button
+            onClick={() => quickLogin('kai_reynolds', '$2b$10$dJbsyCK6czxTEmD4QoDCke6jS88S5tb0vQ6sUpkvdPvMoyUYfbD0q')}
+            className="flex-1 bg-purple-100 hover:bg-purple-200 text-purple-700 font-semibold py-2 rounded-lg shadow text-sm transition-all duration-150"
+            disabled={loading}
+          >
+            Quick Login: kai_reynolds
+          </button>
+        </div>
+        <div className="flex flex-row gap-4 mt-4 w-full">
+          <button
+            onClick={() => quickLogin('aliciast88', 'pass1234')}
+            className="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-2 rounded-lg shadow text-sm transition-all duration-150"
+            disabled={loading}
+          >
+            Quick Login : aliciast88
+          </button>
+          <button
+            onClick={() => quickLogin('sophie_moon', '$2b$10$RI7YgZ0XzGWeE9QuAgk7I.hU0QplMXO5C43P7Uwfb8C2M1zB0kHb2')}
+            className="flex-1 bg-purple-100 hover:bg-purple-200 text-purple-700 font-semibold py-2 rounded-lg shadow text-sm transition-all duration-150"
+            disabled={loading}
+          >
+            Quick Login: sophie_moon
+          </button>
+        </div>
+   
         {/* Sample users for quick login */}
         <div className="mt-6 text-gray-500 text-sm text-center">
           <span>Test users:</span>

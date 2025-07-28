@@ -8,6 +8,7 @@ import com.qt.backend.model.Save;
 import com.qt.backend.model.Post;
 import com.qt.backend.model.User;
 import com.qt.backend.repo.PostRepository;
+import com.qt.backend.repo.RequestRepository;
 import com.qt.backend.repo.UserRepository;
 import com.qt.backend.repo.CommentRepository;
 import com.qt.backend.repo.FollowsRepository;
@@ -28,6 +29,7 @@ public class SaveService {
     private final FollowsRepository followsRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final RequestRepository requestRepository;
 
     public List<PostDto> getSavedPosts(String userId) {
         List<PostDto> posts = saveRepository.findSavedPostsByUserId(userId);
@@ -41,6 +43,11 @@ public class SaveService {
             post.getUser().setPosts(postRepository.countPostsByUserId(post.getUser().getUserId()));
             post.getUser().setFollowers(followsRepository.countFollowersByUserId(post.getUser().getUserId()));
             post.getUser().setFollowing(followsRepository.countFollowingByUserId(post.getUser().getUserId()));
+            if(!post.getUser().isFollowed() && post.getUser().isPrivate()){
+                post.getUser().setIsRequested(requestRepository.findByUserAndByUser(post.getUser().getUserId(), userId).isPresent());
+            }else{
+                post.getUser().setIsRequested(false);
+            }
         }
         return posts;
     }

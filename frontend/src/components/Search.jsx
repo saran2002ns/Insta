@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userData } from '../service/DB';
-import { getSearch ,setFollow,setUnfollow,getUser } from '../service/Api';
+import { getSearch ,setFollow,setUnfollow,getUser,sentRequest,cancelRequest } from '../service/Api';
 
 function Search(props) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -98,13 +98,16 @@ function Search(props) {
 }
 
 function SearchUser({ user, onUserClick }) {
-  const [requested, setRequested] = useState(false);
+  const [requested, setRequested] = useState(user.requested || false);
   const [followed, setFollowed] = useState(user.followed || false);
   const loggedUser=getUser();
   const handleFollowClick = (e) => {
     e.stopPropagation();
     if (requested) {
-      setRequested(false); // Cancel follow request
+      setRequested(false);
+      user.requested=false;
+      // Cancel follow request
+      cancelRequest(user.userId);
     } else if (followed) {
       setFollowed(false); // Unfollow
       setUnfollow(user.userId);
@@ -112,7 +115,10 @@ function SearchUser({ user, onUserClick }) {
       user.followed=false;
       user.followers=user.followers-1;
     } else if (user.private) {
-      setRequested(true); // Send follow request
+      setRequested(true); 
+      user.requested=true;
+      // Send follow request
+      sentRequest(user.userId);
     } else {
       setFollowed(true); // Follow public
       setFollow(user.userId);

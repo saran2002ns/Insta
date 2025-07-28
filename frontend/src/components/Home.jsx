@@ -8,7 +8,7 @@ function Home() {
 
   return (
     <div className="flex min-h-screen bg-white font-sans">
-      <main className="flex-1 flex flex-col items-center mx-auto max-w-[38rem] w-full px-4 md:px-0">
+      <main className="flex-1 flex flex-col items-center mx-auto max-w-[44rem] w-full px-4 md:px-0">
         {/* Stories Bar */}
         <StoryBar />
         {/* Posts Feed */}

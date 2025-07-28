@@ -3,6 +3,10 @@ import { X } from 'lucide-react';
 import { commentData,likeData } from '../service/DB';
 import { getUser ,getComments ,getLikes ,setLike,setUnlike,setSave,setUnsave ,setComment} from '../service/Api';
 import { useNavigate } from 'react-router-dom';
+import defaultProfilePicture from '../images/Profile.webp';
+import defaultVideo from '../images/mockVideo.mp4';
+import defaultImage from '../images/mockImage.jpg';
+
 export default function PostInfo({ imageUrls, onClose, post }) {
   const navigate = useNavigate();
   const user=getUser();
@@ -114,7 +118,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
             >
               <video
                 id="postinfo-video"
-                src={post.mediaUrl}
+                src={post.mediaUrl || defaultVideo}
                 autoPlay
                 playsInline
                 loop
@@ -132,7 +136,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
             </div>
           ) : (
             <img
-              src={post ? post.mediaUrl : imageUrls[currentIndex]}
+              src={post ? post.mediaUrl || defaultImage : imageUrls[currentIndex]}
               alt="post"
               className="w-full h-full object-contain bg-black"
             />
@@ -145,7 +149,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-2 " >
               <img
-                src={post.user.profilePicture || 'https://randomuser.me/api/portraits/men/75.jpg'}
+                src={post.user.profilePicture || defaultProfilePicture}
                 className="w-8 h-8 rounded-full cursor-pointer"
                 onClick={() => userClickHandler(post.user.userId,post.user)}
                 alt="user"
@@ -166,7 +170,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
               likeList && likeList.length > 0 ? (
                 likeList.map((like, idx) => (
                   <div key={idx} className="flex items-center gap-2">
-                    <img src={like.user.profilePicture} alt={like.user.userId} className="w-6 h-6 rounded-full" />
+                    <img src={like.user.profilePicture || defaultProfilePicture} alt={like.user.userId} className="w-6 h-6 rounded-full" />
                     <span className="font-semibold text-sm">{like.user.userId}</span>
                   </div>
                 ))
@@ -177,7 +181,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
               commentList && commentList.length > 0 ? (
                 commentList.map((comment, idx) => (
                   <div key={idx} className="flex items-center gap-2">
-                    <img src={comment.user.profilePicture} alt={comment.user.userId} className="w-6 h-6 rounded-full" />
+                    <img src={comment.user.profilePicture || defaultProfilePicture  } alt={comment.user.userId} className="w-6 h-6 rounded-full" />
                     <span className="font-semibold text-sm">{comment.user.userId}</span>
                     <span className="text-gray-700 text-sm">{comment.commentText}</span>
                   </div>

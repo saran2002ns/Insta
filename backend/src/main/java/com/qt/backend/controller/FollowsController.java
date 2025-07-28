@@ -26,9 +26,9 @@ public class FollowsController {
     private final FollowsService followsService;
 
     @GetMapping("/followers/{userId}")
-    public ResponseEntity<?> getFollowers(@PathVariable String userId) {
+    public ResponseEntity<?> getFollowers(@PathVariable String userId , @RequestParam String loggedInUserId) {
         try {
-            List<UserDto> followers = followsService.getFollowersByUserId(userId);
+            List<UserDto> followers = followsService.getFollowersByUserId(userId, loggedInUserId);
             return ResponseEntity.ok(followers);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
@@ -36,9 +36,9 @@ public class FollowsController {
     }
 
     @GetMapping("/following/{userId}")
-    public ResponseEntity<?> getFollowing(@PathVariable String userId) {
+    public ResponseEntity<?> getFollowing(@PathVariable String userId, @RequestParam String loggedInUserId) {
         try {
-            List<UserDto> following = followsService.getFollowingByUserId(userId);
+            List<UserDto> following = followsService.getFollowingByUserId(userId, loggedInUserId);
             return ResponseEntity.ok(following);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));

@@ -32,8 +32,9 @@ public class Notification {
     @JoinColumn(name = "by_user_id")
     private User byUser;
 
-    @Column(name = "notification_type")
-    private String type;
+
+    @Column(name = "text")
+    private String text;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

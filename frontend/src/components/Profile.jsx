@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { getUser ,getPosts,getSaves,getTags,getFollowers,getFollowing ,setFollow,setUnfollow,removeFollower} from '../service/Api';
+import { getUser ,getPosts,getSaves,getTags,getFollowers,getFollowing ,setFollow,setUnfollow,removeFollower,setLoggedInUser ,sentRequest,cancelRequest} from '../service/Api';
 import PostInfo from './PostInfo';
 import UserPosts from './UserPosts';
 import { useNavigate } from 'react-router-dom';
 
 
 function Profile(props) {
+ 
   const loggedInUser=getUser();
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -38,6 +39,7 @@ function Profile(props) {
   }, [showFollowModal, user]);
  
   useEffect(() => {
+    
     let foundUser = location.state?.user;
     setUser(foundUser);
     setLoading(true);
@@ -46,14 +48,23 @@ function Profile(props) {
 
     setShowPostInfo(false);
     setSelectedPost(null);
-    const ownProfile = loggedInUser && userId === loggedInUser.userId;
+    
+    // Check if it's the user's own profile by comparing both URL params and user object
+    const ownProfile = (loggedInUser && userId === loggedInUser.userId) || 
+                      (loggedInUser && foundUser && foundUser.userId === loggedInUser.userId);
     setIsOwnProfile(ownProfile);
+    
     const noFollowPrivate = !ownProfile && !foundUser?.followed && foundUser?.private;
     setIsNoFollowPrivateProfile(noFollowPrivate);
     setFollowed(foundUser?.followed || false);
-    setRequested(false);
+    setRequested(foundUser?.requested || false);
+    
     if(ownProfile){
-      setUser(loggedInUser);
+      setLoggedInUser().then(() => {
+        setUser(getUser());
+      }).catch(error => {
+        console.error('Error updating user data:', error);
+      });
     }
 
     if(!noFollowPrivate){
@@ -108,15 +119,24 @@ function Profile(props) {
   // Re-add handleFollow function
   const handleFollow = () => {
     if (requested) {
-      setRequested(false); // Cancel follow request
+      setRequested(false);
+      user.requested=false;
+      // Cancel follow request
+      cancelRequest(user.userId);
     } else if (followed) {
       setFollowed(false); // Unfollow
       setUnfollow(user.userId);
       loggedInUser.following=loggedInUser.following-1;
       user.followed=false;
       user.followers=user.followers-1;
+      if(user.private){
+        setIsNoFollowPrivateProfile(true);
+      }
     } else if (user?.private) {
-      setRequested(true); // Send follow request
+      setRequested(true);
+      user.requested=true;
+      // Send follow request
+      sentRequest(user.userId);
     } else {
       setFollowed(true); // Follow public
       setFollow(user.userId);
@@ -212,7 +232,7 @@ function Profile(props) {
                     <span className="ml-4 text-xs text-gray-400 cursor-pointer" onClick={() => userClickHandler(u.userId,u)}>Follow</span>
                   )}
                   <div className="flex-1" />
-                  <button className="ml-2 text-xs text-gray-700 bg-gray-200 rounded px-2 py-1 hover:bg-gray-300" onClick={() => removeFollows(u)}>Remove</button>
+               {isOwnProfile && <button className="ml-2 text-xs text-gray-700 bg-gray-200 rounded px-2 py-1 hover:bg-gray-300" onClick={() => removeFollows(u)}>Remove</button>}
                 </div>
               ))}
             </div>

@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getUser } from '../service/Api';
+import defaultProfilePicture from '../images/Profile.webp';
+import defaultVideo from '../images/mockVideo.mp4';
+import defaultImage from '../images/mockImage.jpg';
 
 export default function StoryModal({ stories, initialIndex = 0, onClose, onStoryViewed, setUserStoryViewed }) {
   const loggedInUser = getUser();
@@ -201,15 +204,15 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
           <div className="hidden md:flex mx-28 flex-col items-center justify-center w-56 h-[70vh] rounded-2xl bg-black/60 shadow-lg scale-90 cursor-pointer transition-all duration-200 relative" onClick={handlePrev}>
             {/* Media */}
             {prevStory.mediaType === 'video' ? (
-              <video src={prevStory.storyUrl} className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" muted />
+              <video src={prevStory.storyUrl || defaultVideo} className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" muted />
             ) : (
-              <img src={prevStory.storyUrl} alt="prev story" className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" />
+              <img src={prevStory.storyUrl || defaultImage} alt="prev story" className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" />
             )}
             {/* Overlay avatar */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
               <div className={`p-1 w-24 h-24 rounded-full overflow-hidden flex items-center justify-center mb-1 ${prevStory.viewed ? 'border-2 border-white bg-slate-200' : 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600'}`}> 
                 <img
-                  src={prevStory.profilePicture}
+                  src={prevStory.profilePicture || defaultProfilePicture}
                   alt={prevStory.userId}
                   className="w-full h-full rounded-full border-2 border-white object-cover"
                 />
@@ -237,7 +240,7 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
           {/* Top bar: avatar, username, time */}
           <div className="absolute top-10 left-0 right-0 flex items-center justify-between px-6 z-30">
             <div className="flex items-center gap-3">
-              <img src={currentStory.profilePicture} alt={currentStory.userId} className="w-9 h-9 rounded-full border-2 border-white" />
+              <img src={currentStory.profilePicture || defaultProfilePicture} alt={currentStory.userId} className="w-9 h-9 rounded-full border-2 border-white" />
               <span className="text-white font-semibold text-base">{currentStory.userId}</span>
               <span className="text-gray-300 text-xs ml-2">{currentStory.createdAt || '1h'}</span>
             </div>
@@ -250,7 +253,7 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
                 {!videoError ? (
                   <video
                     ref={videoRef}
-                    src={currentStory.storyUrl}
+                    src={currentStory.storyUrl || defaultVideo}
                     playsInline
                     autoPlay
                     loop={false}
@@ -298,7 +301,7 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
               </div>
             ) : (
               <img
-                src={currentStory.storyUrl}
+                src={currentStory.storyUrl || defaultImage}
                 alt="story"
                 className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg"
               />
@@ -315,15 +318,15 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
           <div className="hidden md:flex flex-col items-center justify-center w-56 h-[70vh] rounded-2xl bg-black/60 shadow-lg scale-90 cursor-pointer transition-all duration-200 mx-28 relative" onClick={handleNext}>
             {/* Media */}
             {nextStory.mediaType === 'video' ? (
-              <video src={nextStory.storyUrl} className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" muted />
+              <video src={nextStory.storyUrl || defaultVideo} className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" muted />
             ) : (
-              <img src={nextStory.storyUrl} alt="next story" className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" />
+              <img src={nextStory.storyUrl || defaultImage} alt="next story" className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" />
             )}
             {/* Overlay avatar */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
               <div className={`p-1 w-24 h-24 rounded-full overflow-hidden flex items-center justify-center mb-1 ${nextStory.viewed ? 'border-2 border-white bg-slate-200' : 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600'}`}> 
                 <img
-                  src={nextStory.profilePicture}
+                  src={nextStory.profilePicture || defaultProfilePicture}
                   alt={nextStory.userId}
                   className="w-full h-full rounded-full border-2 border-white object-cover"
                 />

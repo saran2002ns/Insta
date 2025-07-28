@@ -1,12 +1,17 @@
 package com.qt.backend.service;
 
 import com.qt.backend.dto.PostDto;
+import com.qt.backend.dto.PostRequest;
 import com.qt.backend.model.Post;
+import com.qt.backend.model.Tag;
 import com.qt.backend.repo.LikeRepository;
 import com.qt.backend.repo.PostRepository;
+import com.qt.backend.repo.RequestRepository;
 import com.qt.backend.repo.CommentRepository;
 import com.qt.backend.repo.SaveRepository;
 import com.qt.backend.repo.FollowsRepository;
+import com.qt.backend.repo.UserRepository;
+import com.qt.backend.repo.TagRepository;
 
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +29,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final SaveRepository saveRepository;
     private final FollowsRepository followsRepository;
+    private final RequestRepository requestRepository;
+    private final UserRepository userRepository;
+    private final TagRepository tagRepository;
 
 //     public PostDto getPostByIdAndUserId(Long postId, String userId) {
         
@@ -49,6 +57,11 @@ public class PostService {
                 post.getUser().setPosts(postRepository.countPostsByUserId(post.getUser().getUserId()));
                 post.getUser().setFollowers(followsRepository.countFollowersByUserId(post.getUser().getUserId()));
                 post.getUser().setFollowing(followsRepository.countFollowingByUserId(post.getUser().getUserId()));
+                if(!post.getUser().isFollowed() && post.getUser().isPrivate()){
+                    post.getUser().setIsRequested(requestRepository.findByUserAndByUser(post.getUser().getUserId(), loggedInUserId).isPresent());
+                }else{
+                    post.getUser().setIsRequested(false);
+                }
             }
             return posts;
        
@@ -67,6 +80,11 @@ public class PostService {
                 feed.getUser().setPosts(postRepository.countPostsByUserId(feed.getUser().getUserId()));
                 feed.getUser().setFollowers(followsRepository.countFollowersByUserId(feed.getUser().getUserId()));
                 feed.getUser().setFollowing(followsRepository.countFollowingByUserId(feed.getUser().getUserId()));
+                if(!feed.getUser().isFollowed() && feed.getUser().isPrivate()){
+                    feed.getUser().setIsRequested(requestRepository.findByUserAndByUser(feed.getUser().getUserId(), userId).isPresent());
+                }else{
+                    feed.getUser().setIsRequested(false);
+                }
             }
             return feeds;
         
@@ -86,6 +104,11 @@ public class PostService {
                 reel.getUser().setPosts(postRepository.countPostsByUserId(reel.getUser().getUserId()));
                 reel.getUser().setFollowers(followsRepository.countFollowersByUserId(reel.getUser().getUserId()));
                 reel.getUser().setFollowing(followsRepository.countFollowingByUserId(reel.getUser().getUserId()));
+                if(!reel.getUser().isFollowed() && reel.getUser().isPrivate()){
+                    reel.getUser().setIsRequested(requestRepository.findByUserAndByUser(reel.getUser().getUserId(), userId).isPresent());
+                }else{
+                    reel.getUser().setIsRequested(false);
+                }
             }
             return reels;
         
@@ -103,6 +126,11 @@ public class PostService {
         post.getUser().setPosts(postRepository.countPostsByUserId(post.getUser().getUserId()));
         post.getUser().setFollowers(followsRepository.countFollowersByUserId(post.getUser().getUserId()));
         post.getUser().setFollowing(followsRepository.countFollowingByUserId(post.getUser().getUserId()));
+        if(!post.getUser().isFollowed() && post.getUser().isPrivate()){
+            post.getUser().setIsRequested(requestRepository.findByUserAndByUser(post.getUser().getUserId(), userId).isPresent());
+        }else{
+            post.getUser().setIsRequested(false);
+        }
         return post;
     }
 
@@ -112,6 +140,21 @@ public class PostService {
             throw new RuntimeException("post not found");
         }
         postRepository.delete(post);
+    }
+
+    public void createPost(PostRequest postDto) {
+        Post post = new Post();
+        post.setCaption(postDto.getCaption());
+        post.setMediaUrl(postDto.getMediaUrl());
+        post.setMediaType(postDto.getMediaType());
+        post.setUser(userRepository.findById(postDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")));
+        postRepository.save(post);
+        for(String userId : postDto.getTags()){
+            Tag tag = new Tag();
+            tag.setPost(post);
+            tag.setUser(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Post was created but User not found for given tag")));
+            tagRepository.save(tag);
+        }
     }
 
   
