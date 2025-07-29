@@ -6,6 +6,8 @@ import { MdLocationPin } from "react-icons/md";
 import { useSwipeable } from 'react-swipeable';
 import PostInfo from './PostInfo';
 import { getReels,setLike,setUnlike,setSave,setUnsave ,setFollow,setUnfollow,getUser,sentRequest,cancelRequest} from '../service/Api';
+import defaultProfilePicture from '../images/Profile.webp';
+import defaultVideo from '../images/mockVideo.mp4';
 
 const INITIAL_LOAD = 10;
 const LOAD_MORE = 10;
@@ -85,7 +87,7 @@ function ReelInfo({ reel, onUserClick, onCommentClick,  muted, toggleMute, isPla
               console.error('Video failed to load:', reel.mediaUrl, e);
             }}
           >
-            <source src={reel.mediaUrl}  />
+            <source src={reel.mediaUrl} onError={e => e.target.src = defaultVideo} />
             <source src="https://samplelib.com/mp4/sample-5s.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
@@ -94,6 +96,7 @@ function ReelInfo({ reel, onUserClick, onCommentClick,  muted, toggleMute, isPla
             src={reel.mediaUrl}
             alt={reel.caption || 'reel'}
             className="w-full h-full object-cover max-h-full"
+            onError={e => e.target.src = reel.mediaUrl}
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full bg-gray-200 text-gray-600">
@@ -123,6 +126,7 @@ function ReelInfo({ reel, onUserClick, onCommentClick,  muted, toggleMute, isPla
           <div className="flex items-center gap-2 mb-2 pointer-events-auto">
             <img
               src={reel.user.profilePicture}
+              onError={e => e.target.src = defaultProfilePicture}
               className="w-8 h-8 rounded-full border border-white cursor-pointer hover:opacity-80"
               onClick={() => onUserClick(reel.user.userId, reel.user)}
               alt={reel.user.userId}

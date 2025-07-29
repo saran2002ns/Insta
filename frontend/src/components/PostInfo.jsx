@@ -125,6 +125,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
                 className="w-full h-full object-contain bg-black rounded-xl shadow-lg"
                 onPlay={() => setIsPaused(false)}
                 onPause={() => setIsPaused(true)}
+                onError={e => e.target.src = defaultVideo}
               />
               {isPaused && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30">
@@ -139,6 +140,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
               src={post ? post.mediaUrl || defaultImage : imageUrls[currentIndex]}
               alt="post"
               className="w-full h-full object-contain bg-black"
+              onError={e => e.target.src = defaultImage}
             />
           )}
         </div>
@@ -153,6 +155,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
                 className="w-8 h-8 rounded-full cursor-pointer"
                 onClick={() => userClickHandler(post.user.userId,post.user)}
                 alt="user"
+                onError={e => e.target.src = defaultProfilePicture}
               />
               <span className="font-semibold cursor-pointer"
                     onClick={() => userClickHandler(post.user.userId,post.user)}>
@@ -170,7 +173,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
               likeList && likeList.length > 0 ? (
                 likeList.map((like, idx) => (
                   <div key={idx} className="flex items-center gap-2">
-                    <img src={like.user.profilePicture || defaultProfilePicture} alt={like.user.userId} className="w-6 h-6 rounded-full" />
+                    <img src={like.user.profilePicture || defaultProfilePicture} alt={like.user.userId} className="w-6 h-6 rounded-full" onError={e => e.target.src = defaultProfilePicture} />
                     <span className="font-semibold text-sm">{like.user.userId}</span>
                   </div>
                 ))
@@ -181,7 +184,7 @@ export default function PostInfo({ imageUrls, onClose, post }) {
               commentList && commentList.length > 0 ? (
                 commentList.map((comment, idx) => (
                   <div key={idx} className="flex items-center gap-2">
-                    <img src={comment.user.profilePicture || defaultProfilePicture  } alt={comment.user.userId} className="w-6 h-6 rounded-full" />
+                    <img src={comment.user.profilePicture || defaultProfilePicture  } alt={comment.user.userId} className="w-6 h-6 rounded-full" onError={e => e.target.src = defaultProfilePicture} />
                     <span className="font-semibold text-sm">{comment.user.userId}</span>
                     <span className="text-gray-700 text-sm">{comment.commentText}</span>
                   </div>

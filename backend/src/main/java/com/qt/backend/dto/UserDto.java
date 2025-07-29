@@ -1,4 +1,6 @@
 package com.qt.backend.dto;
+import java.time.LocalDateTime;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +17,7 @@ public class UserDto {
     private Long followers;
     private Long following;
     private boolean isRequested;
+    private LocalDateTime viewedAt;
 
     public UserDto(String userId, String profilePicture, String username,String bio, boolean isPrivate) {
         this.userId = userId;
@@ -22,6 +25,14 @@ public class UserDto {
         this.username = username;
         this.bio = bio;
         this.isPrivate = isPrivate;
+    }
+    public UserDto(String userId, String profilePicture, String username,String bio, boolean isPrivate ,LocalDateTime viewedAt) {
+        this.userId = userId;
+        this.profilePicture = profilePicture;
+        this.username = username;
+        this.bio = bio;
+        this.isPrivate = isPrivate;
+        this.viewedAt = viewedAt;
     }
 
     public UserDto(String userId, String profilePicture, String username,String bio, boolean isPrivate, boolean isFollowed) {

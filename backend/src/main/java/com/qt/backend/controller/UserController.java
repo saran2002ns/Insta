@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.qt.backend.dto.UserDto;
 import com.qt.backend.dto.UserPasswordCheckDto;
+import com.qt.backend.dto.UserRequest;
 import com.qt.backend.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,19 @@ public class UserController {
             return ResponseEntity.ok(user);
         } else {
             return ResponseEntity.status(401).body(java.util.Map.of("error", "invalid post"));
+        }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody UserRequest userRequest) {
+        try {
+            System.out.println("userRequest: " + userRequest);
+            UserDto user = userService.registerUser(userRequest);
+            return ResponseEntity.ok(java.util.Map.of(
+                    "message", "User is created successfully",
+                    "user", user));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(java.util.Map.of("error", e.getMessage()));
         }
     }
 

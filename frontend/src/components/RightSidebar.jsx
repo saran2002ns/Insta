@@ -43,7 +43,7 @@ function SuggestionUser({ user, loggedUser, onUserClick }) {
         onClick={() => onUserClick(user.userId, user)}
         style={{ cursor: 'pointer' }}
       >
-        <img src={user.profilePicture || defaultProfilePicture} alt={user.userId} className="w-12 h-12 rounded-full mr-3 object-cover" />
+        <img src={user.profilePicture || defaultProfilePicture} alt={user.userId} className="w-12 h-12 rounded-full mr-3 object-cover" onError={e => e.target.src = defaultProfilePicture} />
         <div>
           <div className="font-semibold text-gray-800 text-sm">{user.userId}</div>
           <div className="text-xs text-gray-500">{user.username}</div>
@@ -114,7 +114,7 @@ export default function RightSidebar() {
         className="flex items-center mb-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
         onClick={() => handleUserClick(user.userId, user)}
       >
-        <img src={user.profilePicture || defaultProfilePicture  } alt={user.userId} className="w-12 h-12 rounded-full mr-3 object-cover" />
+        <img src={user.profilePicture || defaultProfilePicture  } alt={user.userId} className="w-12 h-12 rounded-full mr-3 object-cover" onError={e => e.target.src = defaultProfilePicture} />
         <div>
           <div className="font-semibold text-gray-800 text-sm">{user.userId}</div>
           <div className="text-xs text-gray-500">{user.username}</div>

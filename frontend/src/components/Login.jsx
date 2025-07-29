@@ -75,9 +75,19 @@ const Login = () => {
             )}
           </button>
         </form>
+        <div className="mt-4 text-gray-500 text-sm text-center">
+          Don't have an account?{' '}
+          <button
+            className="text-blue-600 hover:underline"
+            onClick={() => navigate('/register')}
+            disabled={loading}
+          >
+            Create Account
+          </button>
+        </div>
         <div className="flex flex-row gap-4 mt-4 w-full">
           <button
-            onClick={() => quickLogin('mira_lennox', '$2b$10$Lk9YP5r7vX6uWtxfJszpquK9rKpQXjU3f9TCzIKYzG2OrRfPmlqai')}
+            onClick={() => quickLogin('mira_lennox', 'pass1234')}
             className="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-2 rounded-lg shadow text-sm transition-all duration-150"
             disabled={loading}
           >
@@ -91,7 +101,7 @@ const Login = () => {
             Quick Login: lisa_moon
           </button>
         </div>
-        <div className="flex flex-row gap-4 mt-4 w-full">
+        {/* <div className="flex flex-row gap-4 mt-4 w-full">
           <button
             onClick={() => quickLogin('ivy_rivera', '$2b$10$wIojh0X8RvwXeYzM3bUt5uMS9coqfFtMY0zftXbiP1rfm8GIB/m5y')}
             className="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-2 rounded-lg shadow text-sm transition-all duration-150"
@@ -106,7 +116,7 @@ const Login = () => {
           >
             Quick Login: kai_reynolds
           </button>
-        </div>
+        </div> */}
         <div className="flex flex-row gap-4 mt-4 w-full">
           <button
             onClick={() => quickLogin('aliciast88', 'pass1234')}
@@ -116,7 +126,7 @@ const Login = () => {
             Quick Login : aliciast88
           </button>
           <button
-            onClick={() => quickLogin('sophie_moon', '$2b$10$RI7YgZ0XzGWeE9QuAgk7I.hU0QplMXO5C43P7Uwfb8C2M1zB0kHb2')}
+            onClick={() => quickLogin('sophie_moon', 'pass1234')}
             className="flex-1 bg-purple-100 hover:bg-purple-200 text-purple-700 font-semibold py-2 rounded-lg shadow text-sm transition-all duration-150"
             disabled={loading}
           >
@@ -125,17 +135,7 @@ const Login = () => {
         </div>
    
         {/* Sample users for quick login */}
-        <div className="mt-6 text-gray-500 text-sm text-center">
-          <span>Test users:</span>
-          <ul className="mt-2 space-y-1">
-            <li className="text-xs text-gray-700">
-              <span className="font-semibold">chitti_robo</span> / <span>chitti123</span>
-            </li>
-            <li className="text-xs text-gray-700">
-              <span className="font-semibold">ra_one</span> / <span>raone123</span>
-            </li>
-          </ul>
-        </div>
+      
         <div className="mt-8 text-gray-400 text-xs">&copy; {new Date().getFullYear()} Instagram Demo</div>
       </div>
     </div>

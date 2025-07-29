@@ -1,9 +1,9 @@
 import React, { useRef, useState, useCallback } from 'react';
-import Cropper from 'react-easy-crop';
 import VideoCropper from './VideoCropper';
 import TagInput from './TagInput';
 import { getUser, cloudUpload ,setPost} from '../service/Api';
 import defaultProfilePicture from '../images/Profile.webp';
+import ImageCropper from './ImageCropper';
 
 function Create() {
   const user = getUser();
@@ -14,8 +14,6 @@ function Create() {
   const [caption, setCaption] = useState("");
   const [tags, setTags] = useState("");
   const [postType, setPostType] = useState("image"); // "image" or "video"
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [showCropper, setShowCropper] = useState(false);
   const [showVideoCropper, setShowVideoCropper] = useState(false);
@@ -25,6 +23,8 @@ function Create() {
   const [isUploading, setIsUploading] = useState(false);
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
+  const [modalMessage, setModalMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   const handleImageClick = () => {
     imageInputRef.current.click();
@@ -69,13 +69,15 @@ function Create() {
       
       // Check file type
       if (!file.type.startsWith('video/')) {
-        alert('Please select a valid video file.');
+        setModalMessage('Please select a valid video file.');
+        setShowModal(true);
         return;
       }
       
       // Check file size (optional - 100MB limit)
       if (file.size > 100 * 1024 * 1024) {
-        alert('Video file is too large. Please select a smaller file (max 100MB).');
+        setModalMessage('Video file is too large. Please select a smaller file (max 100MB).');
+        setShowModal(true);
         return;
       }
       
@@ -101,7 +103,8 @@ function Create() {
             setShowVideoCropper(true);
           } else if (video.duration < 5) {
             // Show error for videos shorter than 5 seconds
-            alert('Video must be at least 5 seconds long. Please select a longer video.');
+            setModalMessage('Video must be at least 5 seconds long. Please select a longer video.');
+            setShowModal(true);
             return;
           } else {
             // Use video as is if it's already 5-30 seconds
@@ -127,7 +130,8 @@ function Create() {
       
       video.onerror = (error) => {
         console.error('Error loading video:', error);
-        alert('Error loading video. Please try a different video file.');
+        setModalMessage('Error loading video. Please try a different video file.');
+        setShowModal(true);
       };
       
       // Add timeout fallback
@@ -160,7 +164,8 @@ function Create() {
             setShowVideoCropper(true);
           } else if (video.duration < 5) {
             // Show error for videos shorter than 5 seconds
-            alert('Video must be at least 5 seconds long. Please select a longer video.');
+            setModalMessage('Video must be at least 5 seconds long. Please select a longer video.');
+            setShowModal(true);
             return;
           } else {
             // Use video as is if it's already 5-30 seconds
@@ -176,10 +181,10 @@ function Create() {
           // Fallback: assume video is valid and let user proceed
           console.log('Duration not available, proceeding with video');
           setSelectedVideo(URL.createObjectURL(file));
-          setSelectedImage(null);
+      setSelectedImage(null);
           setPostType("video");
-          setCroppedImage(null);
-          setShowCropper(false);
+      setCroppedImage(null);
+      setShowCropper(false);
           setCroppedVideo(null);
         }
       };
@@ -236,7 +241,8 @@ function Create() {
         console.log(`Cloudinary ${fileType} URL:`, cloudinaryUrl);
       } catch (err) {
         setIsUploading(false);
-        alert("Failed to upload to Cloudinary. See console for details.");
+        setModalMessage('Failed to upload to Cloudinary. See console for details.');
+        setShowModal(true);
         return;
       }
     }
@@ -269,7 +275,8 @@ function Create() {
     setPost(postObject);
     console.log("=== END POST DATA ===");
 
-    alert(`Post created!\nCaption: ${caption}\nTags: ${tags}`);
+    setModalMessage(`Post created!\nCaption: ${caption}\nTags: ${tags}`);
+    setShowModal(true);
     setSelectedImage(null);
     setSelectedVideo(null);
     setCroppedImage(null);
@@ -354,12 +361,10 @@ function Create() {
     });
   }
 
-  const handleCropSave = async () => {
-    if (selectedImage && croppedAreaPixels) {
-      const croppedImgUrl = await getCroppedImg(selectedImage, croppedAreaPixels);
-      setCroppedImage(croppedImgUrl);
-      setShowCropper(false);
-    }
+  // Update handleCropSave to accept croppedUrl
+  const handleCropSave = async (croppedUrl) => {
+    setCroppedImage(croppedUrl);
+    setShowCropper(false);
   };
 
   // Add a handler to re-crop
@@ -442,48 +447,11 @@ function Create() {
       
       {/* Image Cropper Overlay */}
       {selectedImage && showCropper && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
-          <div className="bg-white w-[90vw] h-[90vh] flex flex-col items-center justify-center rounded-2xl shadow-2xl relative">
-            <div className="w-full h-full relative flex-1 flex items-center justify-center">
-              <Cropper
-                image={selectedImage}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={onCropComplete}
-              />
-            </div>
-            <div className="flex gap-4 items-center justify-center mt-4 mb-6">
-              <label className="flex items-center gap-2">
-                Zoom
-                <input
-                  type="range"
-                  min={1}
-                  max={3}
-                  step={0.1}
-                  value={zoom}
-                  onChange={e => setZoom(Number(e.target.value))}
-                />
-              </label>
-              <button
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200"
-                onClick={handleCropSave}
-                type="button"
-              >
-                Confirm
-              </button>
-              <button
-                className="px-4 py-2 bg-gray-400 text-white rounded-lg font-semibold hover:bg-gray-500 transition-colors duration-200"
-                onClick={handleCloseModal}
-                type="button"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+        <ImageCropper
+          image={selectedImage}
+          onConfirm={handleCropSave}
+          onClose={handleCloseModal}
+        />
       )}
       
       {/* Video Cropper Overlay */}
@@ -526,12 +494,12 @@ function Create() {
                 <div className="w-full h-full flex flex-col items-center justify-center relative">
                   <video src={croppedVideo || selectedVideo} controls className="w-full h-full object-contain bg-black" />
                   <div className="absolute top-4 right-4 flex gap-2 z-10">
-                    <button
+                  <button
                       className="px-3 py-1.5 bg-green-600 text-white rounded-full font-semibold shadow hover:bg-green-700 transition-colors duration-200"
-                      onClick={handleVideoClick}
-                    >
-                      Change Video
-                    </button>
+                    onClick={handleVideoClick}
+                  >
+                    Change Video
+                  </button>
                     <button
                       className="px-3 py-1.5 bg-blue-500 text-white rounded-full font-semibold shadow hover:bg-blue-600 transition-colors duration-200"
                       onClick={handleVideoRecrop}
@@ -582,12 +550,12 @@ function Create() {
                       {postType === "image" ? "📷 post" : "🎥 reel"}
                     </span>
                   </div>
-                  <button
-                    type="submit"
+                <button
+                  type="submit"
                     className="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-200"
-                  >
-                    Post
-                  </button>
+                >
+                  Post
+                </button>
                 </div>
               </form>
             </div>
@@ -614,6 +582,26 @@ function Create() {
               </div>
             </div>
           )}
+        </div>
+      )}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-80 flex flex-col items-center relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none"
+              onClick={() => setShowModal(false)}
+              aria-label="Close modal"
+            >
+              &times;
+            </button>
+            <div className="text-lg font-semibold mb-4 text-center whitespace-pre-line">{modalMessage}</div>
+            <button
+              className="mt-2 px-4 py-2 rounded bg-purple-500 text-white hover:bg-purple-600"
+              onClick={() => setShowModal(false)}
+            >
+              Close
+            </button>
+          </div>
         </div>
       )}
     </div>

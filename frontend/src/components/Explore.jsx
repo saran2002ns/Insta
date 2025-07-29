@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FaPlayCircle } from "react-icons/fa";
 import PostInfo from './PostInfo';
 import { getFeeds } from '../service/Api';
+import defaultImage from '../images/mockImage.jpg';
+import defaultVideo from '../images/mockVideo.mp4';
 
 function chunkArray(array, size) {
   const result = [];
@@ -73,6 +75,7 @@ export default function Explore() {
             muted
             playsInline
             loop
+            onError={e => e.target.src = defaultVideo}
           />
           <FaPlayCircle className="absolute top-2 right-2 text-white text-2xl drop-shadow" />
         </>
@@ -81,6 +84,7 @@ export default function Explore() {
           src={item.mediaUrl}
           alt={`Explore ${item.userId}`}
           className="w-full h-full object-cover"
+          onError={e => e.target.src = defaultImage}
         />
       )}
       {/* Overlay */}

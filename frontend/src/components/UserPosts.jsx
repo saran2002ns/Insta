@@ -1,5 +1,7 @@
 import React from 'react';
 import { setUnsave ,removeTag,deletePost} from '../service/Api';
+import defaultImage from '../images/mockImage.jpg';
+import defaultVideo from '../images/mockVideo.mp4';
 
 function UserPosts({ posts: initialPosts, setSelectedPost, setShowPostInfo, isOwnProfile, tab }) {
   const [posts, setPosts] = React.useState(initialPosts);
@@ -50,7 +52,7 @@ function UserPosts({ posts: initialPosts, setSelectedPost, setShowPostInfo, isOw
             onClick={() => setMenuOpen(null)}
           />
         )}
-        {posts.map((post, i) => (
+        {posts.slice().reverse().map((post, i) => (
           <div
             key={post.postId || i}
             className="aspect-square bg-gray-100 flex flex-col items-center justify-center overflow-hidden relative group cursor-pointer"
@@ -133,12 +135,14 @@ function UserPosts({ posts: initialPosts, setSelectedPost, setShowPostInfo, isOw
                 muted
                 playsInline
                 loop
+                onError={e => e.target.src = defaultVideo}
               />
             ) : (
               <img
                 src={post.mediaUrl}
                 alt={`Post ${post.postId || i}`}
                 className="object-cover w-full h-full"
+                onError={e => e.target.src = defaultImage}
               />
             )}
             {/* Overlay */}

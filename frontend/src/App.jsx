@@ -12,6 +12,7 @@ import More from './components/More';
 import Login from './components/Login';
 import Logout from './components/Logout';
 import ProtectedRoute from './components/ProtectedRoute';
+import Register from './components/Register';
 
 function ProfileWithKey() {
   const { username } = useParams();
@@ -23,6 +24,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/logout" element={<Logout />} />
         <Route
           path="/user/:username"

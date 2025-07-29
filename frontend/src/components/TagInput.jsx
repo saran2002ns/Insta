@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getSearch } from '../service/Api';
+import defaultProfilePicture from '../images/Profile.webp';
 
 function TagInput({ tags, setTags, placeholder = 'Tag users (@userId)', isUserTagging = true }) {
   const [inputValue, setInputValue] = useState('');
@@ -176,6 +177,7 @@ function TagInput({ tags, setTags, placeholder = 'Tag users (@userId)', isUserTa
                     src={suggestion.profilePicture || "https://via.placeholder.com/24"}
                     alt={suggestion.username}
                     className="w-6 h-6 rounded-full"
+                    onError={e => e.target.src = defaultProfilePicture}
                   />
                   <div className="flex flex-col">
                     <span className="font-medium text-gray-900">@{suggestion.username}</span>

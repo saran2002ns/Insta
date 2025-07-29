@@ -2,8 +2,10 @@ package com.qt.backend.service;
 
 import com.qt.backend.dto.PostDto;
 import com.qt.backend.dto.PostRequest;
+import com.qt.backend.model.Notification;
 import com.qt.backend.model.Post;
 import com.qt.backend.model.Tag;
+import com.qt.backend.model.User;
 import com.qt.backend.repo.LikeRepository;
 import com.qt.backend.repo.PostRepository;
 import com.qt.backend.repo.RequestRepository;
@@ -12,7 +14,7 @@ import com.qt.backend.repo.SaveRepository;
 import com.qt.backend.repo.FollowsRepository;
 import com.qt.backend.repo.UserRepository;
 import com.qt.backend.repo.TagRepository;
-
+import com.qt.backend.repo.NotificationRepository;
 import java.util.HashSet;
 import java.util.List;
 
@@ -32,6 +34,7 @@ public class PostService {
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
+    private final NotificationRepository notificationRepository;
 
 //     public PostDto getPostByIdAndUserId(Long postId, String userId) {
         
@@ -147,13 +150,21 @@ public class PostService {
         post.setCaption(postDto.getCaption());
         post.setMediaUrl(postDto.getMediaUrl());
         post.setMediaType(postDto.getMediaType());
-        post.setUser(userRepository.findById(postDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found")));
+        User user = userRepository.findById(postDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+        post.setUser(user);
+        userRepository.save(user);
         postRepository.save(post);
         for(String userId : postDto.getTags()){
             Tag tag = new Tag();
             tag.setPost(post);
             tag.setUser(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Post was created but User not found for given tag")));
             tagRepository.save(tag);
+            Notification notification = new Notification();
+            notification.setUser(tag.getUser());
+            notification.setByUser(user);
+            notification.setText("tagged you in a post");
+            notificationRepository.save(notification);
+
         }
     }
 

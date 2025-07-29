@@ -2,7 +2,8 @@ package com.qt.backend.service;
 
 import com.qt.backend.dto.UserDto;
 import com.qt.backend.dto.UserPasswordCheckDto;
-
+import com.qt.backend.dto.UserRequest;
+import com.qt.backend.model.User;
 import com.qt.backend.repo.FollowsRepository;
 import com.qt.backend.repo.PostRepository;
 import com.qt.backend.repo.UserRepository;
@@ -66,6 +67,23 @@ public class UserService {
             }
         }
         return users;
+    }
+
+
+    public UserDto registerUser(UserRequest userRequest) {
+        if(userRepository.findByUserId(userRequest.getUserId())!=null){
+            throw new RuntimeException("UserId already exists");
+        }
+        User user = new User();
+        user.setUserId(userRequest.getUserId());
+        user.setUsername(userRequest.getUsername());
+        user.setEmail(userRequest.getEmail());
+        user.setPassword(userRequest.getPassword());
+        user.setBio(userRequest.getBio());
+        user.setProfilePicture(userRequest.getProfilePicture());
+        user.setIsPrivate(userRequest.isPrivate());
+        userRepository.save(user);
+        return userRepository.findUserDtoByUserId(userRequest.getUserId());
     }
 
 }

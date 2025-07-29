@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userData } from '../service/DB';
 import { getSearch ,setFollow,setUnfollow,getUser,sentRequest,cancelRequest } from '../service/Api';
+import defaultProfilePicture from '../images/Profile.webp';
 
 function Search(props) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -135,6 +136,7 @@ function SearchUser({ user, onUserClick }) {
           src={user.profilePicture}
           alt={user.userId}
           className="w-12 h-12 rounded-full object-cover"
+          onError={e => e.target.src = defaultProfilePicture}
         />
         <div>
           <div className="flex items-center space-x-1">

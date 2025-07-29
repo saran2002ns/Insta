@@ -523,6 +523,38 @@ export const getSearch=async(query)=>{
         return error;
     }
 }
+export const getViewers=async(storyId)=>{
+    const VIEWERS=API+`stories/${storyId}/viewers?loggedInUserId=${getUser().userId}`;
+    console.log('VIEWERS',VIEWERS);
+    try{
+        const response=await fetch(VIEWERS);
+        const data=await response.json();
+        console.log('viewers data',data);
+        return data;
+    }catch(error){
+        return error;
+    }
+}
+export const setStory=async(story)=>{
+    const STORY=API+`stories`;
+    console.log('STORY',STORY);
+    try{
+        const response=await fetch(STORY, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Add auth headers here if needed
+            },
+            body: JSON.stringify(story),
+        });
+        const data=await response.json(); 
+        console.log('story data',data);
+        
+        return data;
+    }catch(error){
+        return error;
+    }
+}
 export const getStories=async()=>{
     const STORIES=API+`stories/${getUser().userId}`;
     console.log('STORIES',STORIES);
@@ -610,3 +642,24 @@ export async function cloudUpload(fileOrBlob, fileType = "auto") {
     throw new Error(data.error?.message || "Cloudinary upload failed");
   }
 }
+
+export const registerUser = async (user) => {
+  const REGISTER = API + 'users/register';
+  console.log(user);
+  try {
+    const response = await fetch(REGISTER, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(user),
+    });
+   
+    const data = await response.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error('registerUser error', error);
+    throw error;
+  }
+};

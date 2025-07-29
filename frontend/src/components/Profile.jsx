@@ -4,6 +4,7 @@ import { getUser ,getPosts,getSaves,getTags,getFollowers,getFollowing ,setFollow
 import PostInfo from './PostInfo';
 import UserPosts from './UserPosts';
 import { useNavigate } from 'react-router-dom';
+import defaultProfilePicture from '../images/Profile.webp';
 
 
 function Profile(props) {
@@ -221,7 +222,7 @@ function Profile(props) {
             <div className="overflow-y-auto p-4">
               {(followTab === 'followers' ? followersList : followingList).map((u) => (
                 <div key={u.userId} className="flex items-center mb-2 " >
-                  <img src={u.profilePicture} alt={u.userId} className="w-8 h-8 rounded-full mr-3 " onClick={() => userClickHandler(u.userId,u)}/>
+                  <img src={u.profilePicture} alt={u.userId} className="w-8 h-8 rounded-full mr-3 " onClick={() => userClickHandler(u.userId,u)} onError={e => e.target.src = defaultProfilePicture} />
                   <div className='flex flex-col'>
                     <span className='cursor-pointer' onClick={() => userClickHandler(u.userId,u)}>{u.username}</span>
                     <span className="text-xs text-gray-500 cursor-pointer" onClick={() => userClickHandler(u.userId,u)}>{u.userId}</span>
@@ -270,7 +271,7 @@ function Profile(props) {
       <div className="max-w-full p-6 font-sans">
         {/* Profile Header */}
         <div className="max-w-3xl flex items-center gap-12 mb-8 mx-auto">
-          <img src={user.profilePicture} className="w-44 h-44 rounded-full object-cover border" alt={user.userId} />
+          <img src={user.profilePicture} className="w-44 h-44 rounded-full object-cover border" alt={user.userId} onError={e => e.target.src = defaultProfilePicture} />
           <div className="flex-1">
             <div className="flex items-center mb-4">
               <span className="text-2xl font-light">{user.userName}</span>

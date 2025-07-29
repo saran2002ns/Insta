@@ -5,6 +5,8 @@ import { viewStory } from '../service/Api';
 import { getUser } from '../service/Api';
 import StoryModal from './StoryModal';
 import defaultProfilePicture from '../images/Profile.webp'; 
+import StoryUpload from './StoryUpload';
+import SingleStoryModal from './SingleStoryModal';
 
 export default function StoryBar() {
   const scrollRef = useRef(null);
@@ -18,6 +20,9 @@ export default function StoryBar() {
   const [sortedStoriesForModal, setSortedStoriesForModal] = useState([]);
   const [userStory, setUserStory] = useState(null);
   const loggedInUser = getUser();
+  const [showStoryUpload, setShowStoryUpload] = React.useState(false);
+  const [showSingleStoryModal, setShowSingleStoryModal] = useState(false);
+  const [selectedStory, setSelectedStory] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -118,16 +123,15 @@ export default function StoryBar() {
                 className={`p-[4px] w-24 h-24 rounded-full overflow-hidden flex items-center justify-center ${userStory ? (userStory.viewed ? 'border-2 border-white bg-slate-200' : 'bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600') : 'bg-gradient-to-tr from-blue-400 to-blue-600'} cursor-pointer group`}
                 onClick={() => {
                   if (userStory) {
-                    setStoryModalOpen(true);
-                    setStoryModalIndex(0); // Always first
-                    setSortedStoriesForModal([userStory]);
+                    setSelectedStory(userStory);
+                    setShowSingleStoryModal(true);
                   } else {
-                    alert('Open add/update story modal');
+                    setShowStoryUpload(true);
                   }
                 }}
               >
                 <img
-                  src={userStory ? userStory.profilePicture : loggedInUser.profilePicture || defaultProfilePicture} //loggedInUser.profilePicture    
+                  src={userStory ? userStory.profilePicture : loggedInUser.profilePicture || defaultProfilePicture} onError={e => e.target.src = defaultProfilePicture}
                   alt={loggedInUser.userId}
                   className="object-cover w-full h-full rounded-full border-2 border-white"
                 />
@@ -137,7 +141,7 @@ export default function StoryBar() {
                 className="absolute bottom-1 right-1 bg-white border-1 border-white text-blue-500 rounded-full w-6 h-6 flex items-center justify-center text-xl z-10 shadow"
                 onClick={e => {
                   e.stopPropagation();
-                  alert('Open add/update story modal');
+                  setShowStoryUpload(true);
                 }}
                 style={{ cursor: 'pointer' }}
               >
@@ -172,7 +176,7 @@ export default function StoryBar() {
                   style={{ cursor: 'pointer' }}
                 >
                   <img
-                    src={story.profilePicture || defaultProfilePicture}
+                    src={story.profilePicture || defaultProfilePicture} onError={e => e.target.src = defaultProfilePicture}
                     alt={story.userId}
                     className="object-cover w-full h-full rounded-full border-2 border-white"
                   />
@@ -203,6 +207,15 @@ export default function StoryBar() {
           onClose={() => setStoryModalOpen(false)}
           onStoryViewed={handleStoryViewed}
           setUserStoryViewed={setUserStoryViewed}
+        />
+      )}
+      {showStoryUpload && (
+        <StoryUpload onClose={() => setShowStoryUpload(false)} />
+      )}
+      {showSingleStoryModal && selectedStory && (
+        <SingleStoryModal
+          story={selectedStory}
+          onClose={() => setShowSingleStoryModal(false)}
         />
       )}
     </>

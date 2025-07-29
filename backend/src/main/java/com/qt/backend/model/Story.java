@@ -3,8 +3,6 @@ package com.qt.backend.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -43,7 +41,7 @@ public class Story {
     private String caption;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoryView> storyViews = new ArrayList<>();

@@ -24,7 +24,10 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
     List<StoryDto> findByUserIdInWithViewStatus(@Param("userIds") List<String> userIds,
                                                 @Param("viewerId") String viewerId);
 
-    
+
+
+    @Query("SELECT s FROM Story s WHERE s.user.userId = :userId")
+    Story findByUserId(@Param("userId") String userId);
 
     
 }

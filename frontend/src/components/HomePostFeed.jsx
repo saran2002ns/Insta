@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PostInfo from './PostInfo';
 import { getFeeds,setLike,setUnlike,setSave,setUnsave } from '../service/Api';
-import { postData } from '../service/DB';
 import { useNavigate } from 'react-router-dom';
 import defaultProfilePicture from '../images/Profile.webp'; 
 import defaultVideo from '../images/mockVideo.mp4';
@@ -81,6 +80,7 @@ function FeedInfo(props) {
              className="w-full h-full object-cover bg-black rounded-xl shadow-lg"
              onPlay={() => setIsPaused(false)}
              onPause={() => setIsPaused(true)}
+             onError={e => { e.target.onerror = null; e.target.src = defaultVideo; }}
            />
            {isPaused && (
              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
@@ -91,7 +91,7 @@ function FeedInfo(props) {
            )}
          </div>
         ) : (
-          <img src={post.mediaUrl || defaultImage} alt={post.caption} className="w-full h-[calc(80vh-64px)] object-cover rounded-md" />
+          <img src={post.mediaUrl || defaultImage} alt={post.caption} className="w-full h-[calc(80vh-64px)] object-cover rounded-md" onError={e => e.target.src = defaultImage} />
         )}
       </div>
       <div className="flex items-center justify-between py-2">

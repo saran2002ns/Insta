@@ -206,7 +206,7 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
             {prevStory.mediaType === 'video' ? (
               <video src={prevStory.storyUrl || defaultVideo} className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" muted />
             ) : (
-              <img src={prevStory.storyUrl || defaultImage} alt="prev story" className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" />
+              <img src={prevStory.storyUrl || defaultImage} alt="prev story" className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" onError={e => e.target.src = defaultImage} />
             )}
             {/* Overlay avatar */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
@@ -215,6 +215,7 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
                   src={prevStory.profilePicture || defaultProfilePicture}
                   alt={prevStory.userId}
                   className="w-full h-full rounded-full border-2 border-white object-cover"
+                  onError={e => e.target.src = defaultProfilePicture}
                 />
               </div>
             </div>
@@ -240,7 +241,7 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
           {/* Top bar: avatar, username, time */}
           <div className="absolute top-10 left-0 right-0 flex items-center justify-between px-6 z-30">
             <div className="flex items-center gap-3">
-              <img src={currentStory.profilePicture || defaultProfilePicture} alt={currentStory.userId} className="w-9 h-9 rounded-full border-2 border-white" />
+              <img src={currentStory.profilePicture || defaultProfilePicture} alt={currentStory.userId} className="w-9 h-9 rounded-full border-2 border-white" onError={e => e.target.src = defaultProfilePicture} />
               <span className="text-white font-semibold text-base">{currentStory.userId}</span>
               <span className="text-gray-300 text-xs ml-2">{currentStory.createdAt || '1h'}</span>
             </div>
@@ -308,10 +309,10 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
             )}
           </div>
           {/* Reply input at bottom */}
-          <form className="flex items-center gap-2 px-4 py-3 bg-black/80 border-t border-gray-800">
+          {/* <form className="flex items-center gap-2 px-4 py-3 bg-black/80 border-t border-gray-800">
             <input type="text" className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-400 py-1" placeholder={`Reply to ${currentStory.userId}...`} />
             <button type="submit" className="text-blue-500 font-semibold">Send</button>
-          </form>
+          </form> */}
         </div>
         {/* Next story card or empty space */}
         {nextStory ? (
@@ -320,7 +321,7 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
             {nextStory.mediaType === 'video' ? (
               <video src={nextStory.storyUrl || defaultVideo} className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" muted />
             ) : (
-              <img src={nextStory.storyUrl || defaultImage} alt="next story" className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" />
+              <img src={nextStory.storyUrl || defaultImage} alt="next story" className="max-h-[60vh] max-w-full w-full h-full object-contain bg-black rounded-xl shadow-lg mt-2 blur-[1.5px] opacity-60" onError={e => e.target.src = defaultImage} />
             )}
             {/* Overlay avatar */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
@@ -329,6 +330,7 @@ export default function StoryModal({ stories, initialIndex = 0, onClose, onStory
                   src={nextStory.profilePicture || defaultProfilePicture}
                   alt={nextStory.userId}
                   className="w-full h-full rounded-full border-2 border-white object-cover"
+                  onError={e => e.target.src = defaultProfilePicture}
                 />
               </div>
             </div>
