@@ -31,12 +31,21 @@ function Profile(props) {
   const [followTab, setFollowTab] = useState('followers');
   const [followersList, setFollowersList] = useState([]);
   const [followingList, setFollowingList] = useState([]);
+  const [loadingFollowers, setLoadingFollowers] = useState(false);
+
+  // Loader states for each tab
+  const [loadingPosts, setLoadingPosts] = useState(true);
+  const [loadingSaved, setLoadingSaved] = useState(false);
+  const [loadingTagged, setLoadingTagged] = useState(false);
 
   // Fetch followers/following when modal opens (load both at once)
   useEffect(() => {
     if (!showFollowModal || !user) return;
-    getFollowers(user.userId).then(data => setFollowersList(data)).catch(() => setFollowersList([]));
-    getFollowing(user.userId).then(data => setFollowingList(data)).catch(() => setFollowingList([]));
+    setLoadingFollowers(true);
+    Promise.all([
+      getFollowers(user.userId).then(data => setFollowersList(data)).catch(() => setFollowersList([])),
+      getFollowing(user.userId).then(data => setFollowingList(data)).catch(() => setFollowingList([]))
+    ]).finally(() => setLoadingFollowers(false));
   }, [showFollowModal, user]);
  
   useEffect(() => {
@@ -44,6 +53,7 @@ function Profile(props) {
     let foundUser = location.state?.user;
     setUser(foundUser);
     setLoading(true);
+    setLoadingPosts(true);
     if (!foundUser) return;
     const fetchUserId = foundUser.userId || userId;
 
@@ -71,15 +81,18 @@ function Profile(props) {
     if(!noFollowPrivate){
       getPosts(fetchUserId).then(data => {
         setUserPosts(data);
+        setLoadingPosts(false);
         setLoading(false);
         handlePosts(data); // Call handlePosts with data
       }).catch(() => {
         setUserPosts([]); // fallback to empty or you can import postData if you want
+        setLoadingPosts(false);
         setLoading(false);
         handlePosts([]); // Call handlePosts with empty
       });
     }else{
       setUserPosts([]);
+      setLoadingPosts(false);
       setLoading(false);
       handlePosts([]); // Call handlePosts with empty
     }
@@ -90,11 +103,15 @@ function Profile(props) {
     if (!user || isNoFollowPrivateProfile) {
       setSavedPosts([]);
       setTaggedPosts([]);
+      setLoadingSaved(false);
+      setLoadingTagged(false);
       setLoading(false);
       return;
     }
-    getSaves().then(data => setSavedPosts(data)).catch(() => setSavedPosts(postData));
-    getTags(user.userId).then(data => setTaggedPosts(data)).catch(() => setTaggedPosts(postData));
+    setLoadingSaved(true);
+    setLoadingTagged(true);
+    getSaves().then(data => { setSavedPosts(data); setLoadingSaved(false); }).catch(() => { setSavedPosts([]); setLoadingSaved(false); });
+    getTags(user.userId).then(data => { setTaggedPosts(data); setLoadingTagged(false); }).catch(() => { setTaggedPosts([]); setLoadingTagged(false); });
   }, [userPosts]);
 
   // Update handlers to accept optional data
@@ -110,11 +127,13 @@ function Profile(props) {
   };
   const handleSaved = () => {
     setSelectedTab('saved');
-   
+    setLoadingSaved(true);
+    getSaves().then(data => { setSavedPosts(data); setLoadingSaved(false); }).catch(() => { setSavedPosts([]); setLoadingSaved(false); });
   };
   const handleTag = () => {
     setSelectedTab('tagged');
-    // No-op, handled in useEffect
+    setLoadingTagged(true);
+    getTags(user.userId).then(data => { setTaggedPosts(data); setLoadingTagged(false); }).catch(() => { setTaggedPosts([]); setLoadingTagged(false); });
   };
 
   // Re-add handleFollow function
@@ -220,22 +239,31 @@ function Profile(props) {
               </button>
             </div>
             <div className="overflow-y-auto p-4">
-              {(followTab === 'followers' ? followersList : followingList).map((u) => (
-                <div key={u.userId} className="flex items-center mb-2 " >
-                  <img src={u.profilePicture} alt={u.userId} className="w-8 h-8 rounded-full mr-3 " onClick={() => userClickHandler(u.userId,u)} onError={e => e.target.src = defaultProfilePicture} />
-                  <div className='flex flex-col'>
-                    <span className='cursor-pointer' onClick={() => userClickHandler(u.userId,u)}>{u.username}</span>
-                    <span className="text-xs text-gray-500 cursor-pointer" onClick={() => userClickHandler(u.userId,u)}>{u.userId}</span>
-                  </div>
-                  {u.followed ? (
-                    <span className="ml-4 text-xs text-gray-400 cursor-pointer" onClick={() => userClickHandler(u.userId,u)}>Following</span>
-                  ) : (
-                    <span className="ml-4 text-xs text-gray-400 cursor-pointer" onClick={() => userClickHandler(u.userId,u)}>Follow</span>
-                  )}
-                  <div className="flex-1" />
-               {isOwnProfile && <button className="ml-2 text-xs text-gray-700 bg-gray-200 rounded px-2 py-1 hover:bg-gray-300" onClick={() => removeFollows(u)}>Remove</button>}
+              {loadingFollowers ? (
+                <div className="flex justify-center items-center h-32">
+                  <svg className="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
                 </div>
-              ))}
+              ) : (
+                (followTab === 'followers' ? followersList : followingList).map((u) => (
+                  <div key={u.userId} className="flex items-center mb-2 " >
+                    <img src={u.profilePicture} alt={u.userId} className="w-8 h-8 rounded-full mr-3 " onClick={() => userClickHandler(u.userId,u)} onError={e => e.target.src = defaultProfilePicture} />
+                    <div className='flex flex-col'>
+                      <span className='cursor-pointer' onClick={() => userClickHandler(u.userId,u)}>{u.username}</span>
+                      <span className="text-xs text-gray-500 cursor-pointer" onClick={() => userClickHandler(u.userId,u)}>{u.userId}</span>
+                    </div>
+                    {u.followed ? (
+                      <span className="ml-4 text-xs text-gray-400 cursor-pointer" onClick={() => userClickHandler(u.userId,u)}>Following</span>
+                    ) : (
+                      <span className="ml-4 text-xs text-gray-400 cursor-pointer" onClick={() => userClickHandler(u.userId,u)}>Follow</span>
+                    )}
+                    <div className="flex-1" />
+                 {isOwnProfile && <button className="ml-2 text-xs text-gray-700 bg-gray-200 rounded px-2 py-1 hover:bg-gray-300" onClick={() => removeFollows(u)}>Remove</button>}
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -357,25 +385,31 @@ function Profile(props) {
             <span className="text-lg">This account is private</span>
             <span className="text-sm">Follow to see their photos and videos.</span>
           </div>
-        ) : loading ? (
-          <div className="grid grid-cols-3 gap-2 p-6">
-            {Array.from({ length: 9 }).map((_, idx) => (
-              <div key={idx} className="aspect-square bg-gray-200 animate-pulse rounded-lg" />
-            ))}
-          </div>
         ) : (
           <>
-            {selectedTab === 'posts' && (
-              <UserPosts posts={imagePosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} isOwnProfile={isOwnProfile} tab={'posts'}/>
-            )}
-            {selectedTab === 'reels' && (
-              <UserPosts posts={videoPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} isOwnProfile={isOwnProfile} tab={'reels'}/>
-            )}
-            {selectedTab === 'saved' && isOwnProfile && (
-              <UserPosts posts={savedPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} isOwnProfile={isOwnProfile} tab={'saved'}/>
-            )}
-            {selectedTab === 'tagged' && (
-              <UserPosts posts={taggedPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} isOwnProfile={isOwnProfile} tab={'tagged'}/>
+            {(selectedTab === 'posts' && loadingPosts) ||
+             (selectedTab === 'saved' && loadingSaved) ||
+             (selectedTab === 'tagged' && loadingTagged) ? (
+              <div className="grid grid-cols-3 gap-2 p-6">
+                {Array.from({ length: 9 }).map((_, idx) => (
+                  <div key={idx} className="aspect-square bg-gray-200 animate-pulse rounded-lg" />
+                ))}
+              </div>
+            ) : (
+              <>
+                {selectedTab === 'posts' && (
+                  <UserPosts posts={imagePosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} isOwnProfile={isOwnProfile} tab={'posts'}/>
+                )}
+                {selectedTab === 'reels' && (
+                  <UserPosts posts={videoPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} isOwnProfile={isOwnProfile} tab={'reels'}/>
+                )}
+                {selectedTab === 'saved' && isOwnProfile && (
+                  <UserPosts posts={savedPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} isOwnProfile={isOwnProfile} tab={'saved'}/>
+                )}
+                {selectedTab === 'tagged' && (
+                  <UserPosts posts={taggedPosts} setSelectedPost={setSelectedPost} setShowPostInfo={setShowPostInfo} isOwnProfile={isOwnProfile} tab={'tagged'}/>
+                )}
+              </>
             )}
           </>
         )}

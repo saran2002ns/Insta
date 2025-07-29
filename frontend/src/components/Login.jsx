@@ -14,7 +14,11 @@ const Login = () => {
     setError('');
     setLoading(true);
     const data=await login(userIdName,password);
-    if(data){
+    if(data.error){
+      setError(data.error);
+    }
+    else{
+      console.log('data',data);
       console.log('user logged in',data);
       localStorage.setItem('user', JSON.stringify(data));
       navigate('/');

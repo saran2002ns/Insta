@@ -9,6 +9,7 @@ export default function SingleStoryModal({ story, onClose, onStoryViewed }) {
   const navigate = useNavigate();
   if (!story) return null;
   const [storyViewers, setStoryViewers] = useState([]);
+  const [loadingViewers, setLoadingViewers] = useState(false);
   const [progress, setProgress] = useState(0);
   const videoRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
@@ -46,6 +47,7 @@ export default function SingleStoryModal({ story, onClose, onStoryViewed }) {
 
   useEffect(()=>{
     if (story.storyId) {
+      setLoadingViewers(true);
       getViewers(story.storyId).then(data=>{
         if (Array.isArray(data)) {
           setStoryViewers(data.filter(user=>user.userId!=story.userId).reverse());
@@ -53,9 +55,11 @@ export default function SingleStoryModal({ story, onClose, onStoryViewed }) {
           console.error('Invalid data received from getViewers:', data);
           setStoryViewers([]);
         }
+        setLoadingViewers(false);
       }).catch(error => {
         console.error('Error fetching viewers:', error);
         setStoryViewers([]);
+        setLoadingViewers(false);
       });
     }
   },[story.storyId]);
@@ -346,7 +350,7 @@ export default function SingleStoryModal({ story, onClose, onStoryViewed }) {
              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
            >
              <i className="bi bi-chevron-compact-up text-xl"></i>
-             <span>Viewed Stories</span>
+             <span>Viewers </span>
            </button>
          </div>
       </div>
@@ -360,7 +364,7 @@ export default function SingleStoryModal({ story, onClose, onStoryViewed }) {
       >
                  {/* Header */}
          <div className="flex items-center justify-between p-4 border-b border-gray-200"  onClick={toggleViewedStories}>
-           <h3 className="text-lg font-semibold text-gray-800">Viewed Stories</h3>
+           <h3 className="text-lg font-semibold text-gray-800">Viewers</h3>
            <button 
             
              className="text-gray-500 hover:text-gray-700 text-2xl font-bold transition-transform duration-200 hover:scale-110"
@@ -371,47 +375,41 @@ export default function SingleStoryModal({ story, onClose, onStoryViewed }) {
         
                  {/* Scrollable List */}
          <div className="overflow-y-auto" style={{ maxHeight: 'calc(70vh - 60px)' }}>
-           {storyViewers.map((user, index) => (
-             <div key={user.userId || index} className="flex items-center gap-3 p-4 border-b border-gray-100 hover:bg-gray-50" onClick={()=>handleUserClick(user.userId,user)}>
-               <div className="relative">
-                 <img 
-                   src={user.profilePicture} 
-                   alt={user.userId} 
-                   className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
-                   onError={e => e.target.src = defaultProfilePicture}
-                 />
-                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-                   <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                   </svg>
-                 </div>
-               </div>
-               <div className="flex-1">
-                 <div className="flex items-center gap-2">
-                   <span className="font-semibold text-gray-800">{user.username || user.userId}</span>
-                   <span className="text-xs text-gray-500">
-                     {user.viewedAt ? formatTimeAgo(new Date(user.viewedAt)) : 'Recently'}
-                   </span>
-                 </div>
-                 {/* <div className="flex items-center gap-1 mt-1">
-                   <span className="text-xs text-gray-500">
-                     {story.mediaType === 'video' ? 'Video' : 'Image'}
-                   </span>
-                   <span className="text-xs text-gray-400">•</span>
-                   <span className="text-xs text-gray-500">Viewed</span>
-                 </div> */}
-               </div>
-               {/* <div className="w-8 h-8 rounded-lg overflow-hidden bg-gray-100">
-                 <img 
-                   src={story.storyUrl} 
-                   alt="story thumbnail" 
-                   className="w-full h-full object-cover"
-                   onError={e => e.target.src = defaultImage}
-                 />
-               </div> */}
-             </div>
-           ))}
-         </div>
+           {loadingViewers ? (
+            <div className="flex justify-center items-center h-32">
+              <svg className="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
+            </div>
+          ) : (
+            storyViewers.map((user, index) => (
+              <div key={user.userId || index} className="flex items-center gap-3 p-4 border-b border-gray-100 hover:bg-gray-50" onClick={()=>handleUserClick(user.userId,user)}>
+                <div className="relative">
+                  <img 
+                    src={user.profilePicture} 
+                    alt={user.userId} 
+                    className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                    onError={e => e.target.src = defaultProfilePicture}
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-gray-800">{user.username || user.userId}</span>
+                    <span className="text-xs text-gray-500">
+                      {user.viewedAt ? formatTimeAgo(new Date(user.viewedAt)) : 'Recently'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

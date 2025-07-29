@@ -51,7 +51,7 @@ public class UserController {
         if (user != null) {
             return ResponseEntity.ok(user);
         } else {
-            return ResponseEntity.status(401).body(java.util.Map.of("error", "invalid post"));
+            return ResponseEntity.status(401).body(java.util.Map.of("error", "invalid username or password"));
         }
     }
 
