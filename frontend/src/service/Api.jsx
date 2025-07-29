@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { reelTags, reelLocations, reelData } from '../service/DB';
+// For local testing - change this back to Railway URL after deploying CORS fix
 const API = 'http://localhost:8080/api/';
+// const API = 'https://insta-production-c643.up.railway.app/api/';
 
 export let pageFeeds=0;
 export let pageReels=0;
@@ -205,15 +207,21 @@ export const login=async(userId,password)=>{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // Add auth headers here if needed
+                'Accept': 'application/json',
             },
             body: JSON.stringify( { userId: userId, password: password }),
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data=await response.json();
         setUser(data); 
         return data;
     }catch(error){
         console.log('error',error);
+        return { error: error.message || 'Network error occurred' };
     }
 }
     

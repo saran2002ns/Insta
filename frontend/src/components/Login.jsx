@@ -13,15 +13,21 @@ const Login = () => {
     if (e) e.preventDefault();
     setError('');
     setLoading(true);
-    const data=await login(userIdName,password);
-    if(data.error){
-      setError(data.error);
-    }
-    else{
-      console.log('data',data);
-      console.log('user logged in',data);
-      localStorage.setItem('user', JSON.stringify(data));
-      navigate('/');
+    try {
+      const data=await login(userIdName,password);
+      if(data.error){
+        setError(data.error);
+      }
+      else{
+        console.log('data',data);
+        console.log('user logged in',data);
+        localStorage.setItem('user', JSON.stringify(data));
+        navigate('/');
+      }
+    } catch (error) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
