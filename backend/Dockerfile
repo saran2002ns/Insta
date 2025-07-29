@@ -28,4 +28,4 @@
     EXPOSE 8080
     
     # Tell the container to run your Spring Boot app
-    ENTRYPOINT ["java", "-jar", "app.jar"]
+    ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT}"]
