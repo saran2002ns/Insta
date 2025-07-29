@@ -9,23 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.qt</groupId>
-	<artifactId>frontend</artifactId>
+	<artifactId>instagram-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>frontend</name>
-	<description>Demo project for Spring Boot</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+	<name>instagram-backend</name>
+	<description>Instagram Backend API</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -53,11 +40,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mariadb.jdbc</groupId>
-			<artifactId>mariadb-java-client</artifactId>
-			<version>3.3.3</version>
 		</dependency>
 	</dependencies>
 
